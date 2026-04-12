@@ -11,6 +11,7 @@ local PlayerService = require(Server.Services.PlayerService)
 local PrisonService = require(Server.Services.PrisonService)
 local RoundService = require(Server.Services.RoundService)
 local KissyService = require(Server.Services.KissyService)
+local TreadmillService = require(Server.Services.TreadmillService)
 
 -- Initialize (order matters)
 RemoteService:Init()
@@ -18,6 +19,7 @@ PlayerService:Init(RemoteService)
 KissyService:Init(PlayerService)
 RoundService:Init(RemoteService, PlayerService, PrisonService, KissyService)
 PrisonService:Init(RemoteService, PlayerService, RoundService)
+TreadmillService:Init(PlayerService, RoundService)
 
 -- Wire up: when a player is captured, teleport them to prison
 PlayerService:SetOnCapture(function(player)
@@ -26,5 +28,6 @@ end)
 
 -- Start the game loop
 RoundService:Start()
+TreadmillService:Start()
 
 print("[Server] Kissy Missy's Castle is running")

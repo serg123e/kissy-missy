@@ -53,6 +53,41 @@
           "Anchored": true
         }
       },
+      "Treadmills": {
+        "$className": "Folder",
+        "Treadmill1": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [8, 1, 4],
+            "Position": [30, 1, 30],
+            "Anchored": true
+          }
+        },
+        "Treadmill2": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [8, 1, 4],
+            "Position": [30, 1, 38],
+            "Anchored": true
+          }
+        },
+        "Treadmill3": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [8, 1, 4],
+            "Position": [30, 1, 46],
+            "Anchored": true
+          }
+        },
+        "Treadmill4": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [8, 1, 4],
+            "Position": [30, 1, 54],
+            "Anchored": true
+          }
+        }
+      },
       "KissySpawn": {
         "$className": "Part",
         "$properties": {

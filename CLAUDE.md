@@ -32,14 +32,16 @@ Services use manual dependency injection. Initialization order in `init.server.l
 3. `KissyService:Init(playerService)` — NPC AI, pathfinding, capture
 4. `RoundService:Init(remoteService, playerService, prisonService, kissyService)` — game loop
 5. `PrisonService:Init(remoteService, playerService, roundService)` — prison + door
+6. `TreadmillService:Init(playerService, roundService)` — speed training
 
-Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and call `RoundService:Start()`.
+Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and call `RoundService:Start()` + `TreadmillService:Start()`.
 
 ## Required Workspace Parts (must exist in Studio place file)
 - `PrisonSpawn` — Part inside the castle prison; players teleport here on capture
 - `PrisonExit` — Part outside the prison; freed players teleport here
 - `PrisonDoor` — Part representing the prison door; toggled transparent/collidable
 - `KissySpawn` — Part inside the castle; Kissy Missy spawns here each round
+- `Treadmills` — Folder with Part children; players stand on them to train speed
 
 ## Required ServerStorage Assets
 - `KissyMissy` — Model with Humanoid + HumanoidRootPart; the NPC template cloned each round
