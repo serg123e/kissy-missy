@@ -78,6 +78,7 @@ The code expects these objects. Placeholder Parts already exist after build/sync
 | `PrisonDoor` | Prison entrance | Opens/closes when players press Y |
 | `KissySpawn` | Inside the castle | Kissy Missy spawns here each round |
 | `Treadmills` (Folder) | Training zone near spawn | Contains Part children — reposition each treadmill Part individually |
+| `SpawnLocations` (Folder) | Around the castle | Contains SpawnLocation children — players teleport here each round |
 
 ### ServerStorage (create manually)
 

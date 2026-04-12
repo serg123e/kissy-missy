@@ -88,6 +88,49 @@
           }
         }
       },
+      "SpawnLocations": {
+        "$className": "Folder",
+        "Spawn1": {
+          "$className": "SpawnLocation",
+          "$properties": {
+            "Size": [6, 1, 6],
+            "Position": [40, 1, 0],
+            "Anchored": true,
+            "CanCollide": false,
+            "Transparency": 1
+          }
+        },
+        "Spawn2": {
+          "$className": "SpawnLocation",
+          "$properties": {
+            "Size": [6, 1, 6],
+            "Position": [-40, 1, 0],
+            "Anchored": true,
+            "CanCollide": false,
+            "Transparency": 1
+          }
+        },
+        "Spawn3": {
+          "$className": "SpawnLocation",
+          "$properties": {
+            "Size": [6, 1, 6],
+            "Position": [0, 1, 40],
+            "Anchored": true,
+            "CanCollide": false,
+            "Transparency": 1
+          }
+        },
+        "Spawn4": {
+          "$className": "SpawnLocation",
+          "$properties": {
+            "Size": [6, 1, 6],
+            "Position": [0, 1, -40],
+            "Anchored": true,
+            "CanCollide": false,
+            "Transparency": 1
+          }
+        }
+      },
       "KissySpawn": {
         "$className": "Part",
         "$properties": {

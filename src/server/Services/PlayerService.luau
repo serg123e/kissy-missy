@@ -185,13 +185,46 @@ function PlayerService:SetRound(roundNumber: number)
 end
 
 function PlayerService:ResetForRound()
+	local spawns = self:_getSpawnLocations()
+
 	for player, data in playerData do
 		data.state = "Alive"
 		data.speed = GameConfig.BASE_PLAYER_SPEED
 		data.captureTime = nil
 		data.joinedRound = currentRound
 		self:SetSpeed(player, GameConfig.BASE_PLAYER_SPEED)
+		self:_teleportToSpawn(player, spawns)
 	end
+end
+
+function PlayerService:_getSpawnLocations(): { SpawnLocation }
+	local folder = workspace:FindFirstChild("SpawnLocations")
+	if not folder then
+		return {}
+	end
+	local spawns = {}
+	for _, child in folder:GetChildren() do
+		if child:IsA("SpawnLocation") then
+			table.insert(spawns, child)
+		end
+	end
+	return spawns
+end
+
+function PlayerService:_teleportToSpawn(player: Player, spawns: { SpawnLocation })
+	if #spawns == 0 then
+		return
+	end
+	local character = player.Character
+	if not character then
+		return
+	end
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	if not hrp then
+		return
+	end
+	local spawn = spawns[math.random(#spawns)]
+	hrp.CFrame = spawn.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
 end
 
 function PlayerService:AwardSurvivors()

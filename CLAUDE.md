@@ -40,6 +40,7 @@ Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and 
 - `PrisonDoor` — Part representing the prison door; toggled transparent/collidable
 - `KissySpawn` — Part inside the castle; Kissy Missy spawns here each round
 - `Treadmills` — Folder with Part children; players stand on them to train speed
+- `SpawnLocations` — Folder with SpawnLocation children; players teleport here at round start
 
 ## Required ServerStorage Assets
 - `KissyMissy` — Model with Humanoid + HumanoidRootPart; the NPC template cloned each round
