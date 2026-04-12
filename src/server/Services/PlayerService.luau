@@ -55,6 +55,18 @@ function PlayerService:_onPlayerAdded(player: Player)
 		joinedRound = currentRound,
 	}
 
+	-- Re-apply stored speed when character respawns
+	player.CharacterAdded:Connect(function(character)
+		local data = playerData[player]
+		if not data then
+			return
+		end
+		local humanoid = character:WaitForChild("Humanoid", 5)
+		if humanoid then
+			humanoid.WalkSpeed = data.speed
+		end
+	end)
+
 	-- Leaderboard display
 	local leaderstats = Instance.new("Folder")
 	leaderstats.Name = "leaderstats"

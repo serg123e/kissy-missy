@@ -7,6 +7,7 @@ local TreadmillService = {}
 
 local PlayerService
 local RoundService
+local cachedTreadmills: { BasePart } = {}
 
 function TreadmillService:Init(playerService, roundService)
 	PlayerService = playerService
@@ -15,13 +16,28 @@ function TreadmillService:Init(playerService, roundService)
 end
 
 function TreadmillService:Start()
+	-- Cache treadmill parts once — they are static map objects
+	local folder = workspace:FindFirstChild("Treadmills")
+	if folder then
+		for _, child in folder:GetChildren() do
+			if child:IsA("BasePart") then
+				table.insert(cachedTreadmills, child)
+			end
+		end
+	end
+
+	if #cachedTreadmills == 0 then
+		warn("[TreadmillService] No treadmill parts found — training disabled")
+		return
+	end
+
 	task.spawn(function()
 		while true do
 			task.wait(GameConfig.TREADMILL_TICK_SECONDS)
 			self:_tick()
 		end
 	end)
-	print("[TreadmillService] Training loop started")
+	print("[TreadmillService] Training loop started (" .. #cachedTreadmills .. " treadmills)")
 end
 
 function TreadmillService:_tick()
@@ -30,13 +46,8 @@ function TreadmillService:_tick()
 		return
 	end
 
-	local treadmills = self:_getTreadmills()
-	if #treadmills == 0 then
-		return
-	end
-
 	for _, player in PlayerService:GetAlivePlayers() do
-		if self:_isOnTreadmill(player, treadmills) then
+		if self:_isOnTreadmill(player) then
 			local data = PlayerService:GetData(player)
 			if data and data.speed < GameConfig.MAX_PLAYER_SPEED then
 				PlayerService:SetSpeed(player, data.speed + GameConfig.SPEED_PER_TREADMILL_TICK)
@@ -45,15 +56,7 @@ function TreadmillService:_tick()
 	end
 end
 
-function TreadmillService:_getTreadmills(): { BasePart }
-	local folder = workspace:FindFirstChild("Treadmills")
-	if not folder then
-		return {}
-	end
-	return folder:GetChildren()
-end
-
-function TreadmillService:_isOnTreadmill(player: Player, treadmills: { BasePart }): boolean
+function TreadmillService:_isOnTreadmill(player: Player): boolean
 	local character = player.Character
 	if not character then
 		return false
@@ -64,14 +67,15 @@ function TreadmillService:_isOnTreadmill(player: Player, treadmills: { BasePart 
 	end
 
 	local pos = hrp.Position
-	for _, treadmill in treadmills do
+	for _, treadmill in cachedTreadmills do
 		-- Horizontal distance (XZ plane)
 		local dx = pos.X - treadmill.Position.X
 		local dz = pos.Z - treadmill.Position.Z
 		local horizontalDist = math.sqrt(dx * dx + dz * dz)
 		local radius = math.max(treadmill.Size.X, treadmill.Size.Z) / 2 + 1
 
-		-- Vertical check: player should be on top of the treadmill, not below
+		-- Vertical: -1 allows slight floor overlap; 6 covers a standing character
+		-- (~5 studs tall in Roblox) above the treadmill surface
 		local treadmillTop = treadmill.Position.Y + treadmill.Size.Y / 2
 		local dy = pos.Y - treadmillTop
 		local onTop = dy >= -1 and dy <= 6

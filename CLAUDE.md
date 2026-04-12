@@ -15,14 +15,12 @@ Roblox tag/chase game built with Rojo.
 ```
 src/
   server/          → ServerScriptService (server-only code)
-    Services/      → Game services (round manager, prison, etc.)
-    Components/    → Server-side entity components
+    Services/      → Game services (round manager, prison, AI, treadmills)
   client/          → StarterPlayerScripts (client-only code)
-    Controllers/   → Client controllers (input, camera, etc.)
-    UI/            → GUI controllers
+    Controllers/   → Client controllers (input)
+    UI/            → GUI controllers (HUD)
   shared/          → ReplicatedStorage (shared between server & client)
     Config/        → Game constants and configuration
-    Modules/       → Shared utility modules
 ```
 
 ## Service Architecture

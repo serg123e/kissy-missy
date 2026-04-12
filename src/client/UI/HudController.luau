@@ -28,8 +28,7 @@ local notifThread: thread? = nil
 
 function HudController:Init()
 	self:_createUI()
-	self:_startTimerLoop()
-	self:_startProximityLoop()
+	self:_startHudLoop()
 	print("[HudController] Initialized")
 end
 
@@ -198,23 +197,20 @@ end
 
 -- Private: loops
 
-function HudController:_startTimerLoop()
+function HudController:_startHudLoop()
 	RunService.Heartbeat:Connect(function()
 		-- Client-side countdown between server syncs
 		local elapsed = os.clock() - lastServerSync
 		local display = math.max(0, math.floor(timeRemaining - elapsed))
 		timerLabel.Text = self:_formatTime(display)
-	end)
-end
 
-function HudController:_startProximityLoop()
-	RunService.Heartbeat:Connect(function()
 		promptLabel.Visible = self:_shouldShowPrompt()
 	end)
 end
 
 function HudController:_shouldShowPrompt(): boolean
-	if currentState ~= "Hunt" and currentState ~= "SafeZone" then
+	-- Only show during Hunt — server rejects door interact in other phases
+	if currentState ~= "Hunt" then
 		return false
 	end
 	if isCaptured or isDoorOpen then

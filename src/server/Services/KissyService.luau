@@ -30,6 +30,8 @@ end
 -- Called at the start of SafeZone phase.
 -- Spawns Kissy in the castle, waits KISSY_SPAWN_DELAY, then starts hunting.
 function KissyService:Activate()
+	-- Cancel any previous hunt loop to prevent duplicate concurrent loops
+	self:Deactivate()
 	self:_spawnKissy()
 
 	huntThread = task.spawn(function()
@@ -103,12 +105,13 @@ end
 -- AI loop
 
 function KissyService:_huntTick()
-	if not kissyModel then
+	local model = kissyModel
+	if not model then
 		return
 	end
 
-	local humanoidRootPart = kissyModel:FindFirstChild("HumanoidRootPart")
-	local humanoid = kissyModel:FindFirstChildOfClass("Humanoid")
+	local humanoidRootPart = model:FindFirstChild("HumanoidRootPart")
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	if not humanoidRootPart or not humanoid then
 		return
 	end
@@ -125,10 +128,16 @@ function KissyService:_huntTick()
 	end
 
 	-- 3. Move toward target (recompute path periodically)
+	-- _computePath yields (ComputeAsync), so re-check model after
 	local now = os.clock()
 	if now - lastPathTime >= PATH_RECOMPUTE_INTERVAL then
 		lastPathTime = now
 		self:_computePath(kissyPos, targetPos, humanoid)
+	end
+
+	-- Model may have been destroyed during ComputeAsync yield
+	if not kissyModel then
+		return
 	end
 
 	self:_followPath(humanoid)
@@ -170,36 +179,16 @@ function KissyService:_pickTarget(kissyPosition: Vector3): Vector3?
 		end
 	end
 
-	-- Check if any alive player is near the prison door — prioritize guarding
+	-- Single pass: find nearest player and nearest player to prison door
 	local doorPart = workspace:FindFirstChild("PrisonDoor")
-	if doorPart then
-		local closestDoorPlayer: Vector3? = nil
-		local closestDoorDist = GameConfig.PRISON_DOOR_INTERACT_RADIUS * 2
+	local doorPos = doorPart and doorPart.Position
+	-- 2x interact radius so Kissy starts moving toward the door before the player can press Y
+	local doorThreshold = GameConfig.PRISON_DOOR_INTERACT_RADIUS * 2
 
-		for _, player in alivePlayers do
-			local character = player.Character
-			if not character then
-				continue
-			end
-			local hrp = character:FindFirstChild("HumanoidRootPart")
-			if not hrp then
-				continue
-			end
-			local distToDoor = (hrp.Position - doorPart.Position).Magnitude
-			if distToDoor < closestDoorDist then
-				closestDoorDist = distToDoor
-				closestDoorPlayer = hrp.Position
-			end
-		end
-
-		if closestDoorPlayer then
-			return closestDoorPlayer
-		end
-	end
-
-	-- Default: chase nearest player
 	local nearestPos: Vector3? = nil
 	local nearestDist = math.huge
+	local doorTargetPos: Vector3? = nil
+	local closestDoorDist = doorThreshold
 
 	for _, player in alivePlayers do
 		local character = player.Character
@@ -210,14 +199,25 @@ function KissyService:_pickTarget(kissyPosition: Vector3): Vector3?
 		if not hrp then
 			continue
 		end
-		local dist = (hrp.Position - kissyPosition).Magnitude
+		local pos = hrp.Position
+
+		local dist = (pos - kissyPosition).Magnitude
 		if dist < nearestDist then
 			nearestDist = dist
-			nearestPos = hrp.Position
+			nearestPos = pos
+		end
+
+		if doorPos then
+			local distToDoor = (pos - doorPos).Magnitude
+			if distToDoor < closestDoorDist then
+				closestDoorDist = distToDoor
+				doorTargetPos = pos
+			end
 		end
 	end
 
-	return nearestPos
+	-- Prioritize guarding the prison door over chasing nearest
+	return doorTargetPos or nearestPos
 end
 
 -- Pathfinding
@@ -257,11 +257,16 @@ function KissyService:_followPath(humanoid: Humanoid)
 		humanoid.Jump = true
 	end
 
-	-- Advance to next waypoint if close enough
+	-- Advance past reached waypoints. At 28 studs/s with 0.5s ticks Kissy moves
+	-- ~14 studs between checks, so use a generous threshold to avoid stalling.
 	local humanoidRootPart = kissyModel and kissyModel:FindFirstChild("HumanoidRootPart")
 	if humanoidRootPart then
-		local dist = (humanoidRootPart.Position - waypoint.Position).Magnitude
-		if dist < 4 then
+		local pos = humanoidRootPart.Position
+		while currentWaypointIndex <= #currentWaypoints do
+			local dist = (pos - currentWaypoints[currentWaypointIndex].Position).Magnitude
+			if dist > 8 then
+				break
+			end
 			currentWaypointIndex += 1
 		end
 	end
