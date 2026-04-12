@@ -13,10 +13,12 @@ local roundNumber: number = 0
 
 local RemoteService
 local PlayerService
+local PrisonService
 
-function RoundService:Init(remoteService, playerService)
+function RoundService:Init(remoteService, playerService, prisonService)
 	RemoteService = remoteService
 	PlayerService = playerService
+	PrisonService = prisonService
 	print("[RoundService] Initialized")
 end
 
@@ -81,6 +83,7 @@ function RoundService:_runSafeZone()
 	print("[RoundService] Round", roundNumber, "starting")
 
 	PlayerService:ResetForRound()
+	PrisonService:Reset()
 	self:_setState("SafeZone", GameConfig.SAFE_ZONE_DURATION)
 	self:_countdown(GameConfig.SAFE_ZONE_DURATION)
 end

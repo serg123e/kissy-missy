@@ -16,6 +16,7 @@ local playerData: { [Player]: {
 } } = {}
 
 local RemoteService -- injected via Init
+local onCaptureCallback: ((Player) -> ())? = nil
 
 function PlayerService:Init(remoteService)
 	RemoteService = remoteService
@@ -97,6 +98,14 @@ function PlayerService:CapturePlayer(player: Player)
 
 	RemoteService:FireAll(RemoteEventNames.PlayerCaptured, player.UserId)
 	print("[PlayerService]", player.Name, "captured")
+
+	if onCaptureCallback then
+		onCaptureCallback(player)
+	end
+end
+
+function PlayerService:SetOnCapture(callback: (Player) -> ())
+	onCaptureCallback = callback
 end
 
 function PlayerService:FreePlayer(player: Player)
