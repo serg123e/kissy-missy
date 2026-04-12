@@ -1,4 +1,5 @@
 -- Manages the prison: teleporting captured players, door interaction (Y key)
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
@@ -11,10 +12,18 @@ local doorCloseThread: thread? = nil
 
 local RemoteService
 local PlayerService
+local RoundService
 
-function PrisonService:Init(remoteService, playerService)
+local doorInteractCooldown: { [Player]: number } = {}
+
+function PrisonService:Init(remoteService, playerService, roundService)
 	RemoteService = remoteService
 	PlayerService = playerService
+	RoundService = roundService
+
+	Players.PlayerRemoving:Connect(function(player)
+		doorInteractCooldown[player] = nil
+	end)
 
 	-- Listen for door interact from clients
 	local doorRemote = RemoteService:Get(RemoteEventNames.DoorInteract)
@@ -41,7 +50,7 @@ function PrisonService:TeleportToPrison(player: Player)
 
 	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
 	if humanoidRootPart then
-		humanoidRootPart.CFrame = prisonSpawn.CFrame + Vector3.new(0, 3, 0)
+		humanoidRootPart.CFrame = prisonSpawn.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
 	end
 end
 
@@ -59,7 +68,7 @@ function PrisonService:TeleportFromPrison(player: Player)
 
 	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
 	if humanoidRootPart then
-		humanoidRootPart.CFrame = prisonExit.CFrame + Vector3.new(0, 3, 0)
+		humanoidRootPart.CFrame = prisonExit.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
 	end
 end
 
@@ -101,6 +110,10 @@ function PrisonService:CloseDoor()
 		return
 	end
 
+	if doorCloseThread then
+		task.cancel(doorCloseThread)
+	end
+
 	isDoorOpen = false
 	doorCloseThread = nil
 	RemoteService:FireAll(RemoteEventNames.DoorStateChanged, false)
@@ -118,18 +131,35 @@ function PrisonService:IsDoorOpen(): boolean
 end
 
 function PrisonService:Reset()
+	-- Teleport captured players out before closing door and resetting state
+	local captured = PlayerService:GetCapturedPlayers()
+	for _, player in captured do
+		self:TeleportFromPrison(player)
+	end
 	self:CloseDoor()
 end
 
 -- Private
 
 function PrisonService:_onDoorInteract(player: Player)
-	local data = PlayerService:GetData(player)
-	if not data or data.state ~= "Alive" then
-		return -- only alive players can open the door
+	-- Rate limit: 2 second cooldown per player
+	local now = os.clock()
+	if doorInteractCooldown[player] and now - doorInteractCooldown[player] < 2 then
+		return
+	end
+	doorInteractCooldown[player] = now
+
+	-- Only during Hunt phase
+	if RoundService:GetState() ~= "Hunt" then
+		return
 	end
 
-	-- Check if player is near the prison door
+	local data = PlayerService:GetData(player)
+	if not data or data.state ~= "Alive" then
+		return
+	end
+
+	-- Check proximity to prison door
 	local character = player.Character
 	if not character then
 		return
@@ -142,17 +172,21 @@ function PrisonService:_onDoorInteract(player: Player)
 	end
 
 	local distance = (humanoidRootPart.Position - doorPart.Position).Magnitude
-	if distance > 15 then
-		return -- too far from the door
+	if distance > GameConfig.PRISON_DOOR_INTERACT_RADIUS then
+		return
 	end
 
-	-- Award coins for freeing prisoners
+	-- Only award coins if door actually opens (prevents TOCTOU double-award)
+	if isDoorOpen then
+		return
+	end
+
 	local capturedCount = #PlayerService:GetCapturedPlayers()
+	self:OpenDoor()
+
 	if capturedCount > 0 then
 		PlayerService:AddCoins(player, GameConfig.COINS_FREE_PRISONER)
 	end
-
-	self:OpenDoor()
 end
 
 return PrisonService

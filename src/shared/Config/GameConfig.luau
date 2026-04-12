@@ -14,9 +14,12 @@ local GameConfig = {
 	-- Prison settings
 	PRISON_DOOR_OPEN_TIME = 5, -- seconds door stays open after player presses Y
 	PRISON_DOOR_INTERACT_KEY = Enum.KeyCode.Y,
+	PRISON_DOOR_INTERACT_RADIUS = 15, -- studs from door center to allow interaction
+	TELEPORT_Y_OFFSET = 3, -- studs above spawn point to avoid clipping into floor
 
 	-- Game flow
 	ROUND_DURATION = 300, -- 5 minutes per round
+	ROUND_END_DURATION = 5, -- seconds to show results before next intermission
 	MIN_PLAYERS = 2,
 	INTERMISSION_DURATION = 15,
 

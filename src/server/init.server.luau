@@ -14,8 +14,8 @@ local RoundService = require(Server.Services.RoundService)
 -- Initialize (order matters)
 RemoteService:Init()
 PlayerService:Init(RemoteService)
-PrisonService:Init(RemoteService, PlayerService)
 RoundService:Init(RemoteService, PlayerService, PrisonService)
+PrisonService:Init(RemoteService, PlayerService, RoundService)
 
 -- Wire up: when a player is captured, teleport them to prison
 PlayerService:SetOnCapture(function(player)

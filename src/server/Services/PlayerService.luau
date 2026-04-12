@@ -8,12 +8,18 @@ local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
 local PlayerService = {}
 
 -- { [Player]: PlayerData }
-local playerData: { [Player]: {
-	state: string,
-	speed: number,
-	captureTime: number?,
-	coins: number,
-} } = {}
+local playerData: {
+	[Player]: {
+		state: string,
+		speed: number,
+		captureTime: number?,
+		coins: number,
+		joinedRound: number, -- which round the player joined; 0 = before first round
+	},
+} =
+	{}
+
+local currentRound: number = 0
 
 local RemoteService -- injected via Init
 local onCaptureCallback: ((Player) -> ())? = nil
@@ -46,6 +52,7 @@ function PlayerService:_onPlayerAdded(player: Player)
 		speed = GameConfig.BASE_PLAYER_SPEED,
 		captureTime = nil,
 		coins = 0,
+		joinedRound = currentRound,
 	}
 
 	-- Leaderboard display
@@ -161,18 +168,24 @@ function PlayerService:SetSpeed(player: Player, speed: number)
 	RemoteService:FireClient(player, RemoteEventNames.SpeedUpdated, data.speed)
 end
 
+function PlayerService:SetRound(roundNumber: number)
+	currentRound = roundNumber
+end
+
 function PlayerService:ResetForRound()
 	for player, data in playerData do
 		data.state = "Alive"
 		data.speed = GameConfig.BASE_PLAYER_SPEED
 		data.captureTime = nil
+		data.joinedRound = currentRound
 		self:SetSpeed(player, GameConfig.BASE_PLAYER_SPEED)
 	end
 end
 
 function PlayerService:AwardSurvivors()
 	for player, data in playerData do
-		if data.state == "Alive" then
+		-- Only award players who were present at round start (not mid-round joiners)
+		if data.state == "Alive" and data.joinedRound == currentRound then
 			self:AddCoins(player, GameConfig.COINS_SURVIVE_ROUND)
 			print("[PlayerService]", player.Name, "survived — earned", GameConfig.COINS_SURVIVE_ROUND, "coins")
 		end

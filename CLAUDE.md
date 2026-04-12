@@ -22,9 +22,22 @@ src/
     UI/            → GUI controllers
   shared/          → ReplicatedStorage (shared between server & client)
     Config/        → Game constants and configuration
-    Types/         → Type definitions
     Modules/       → Shared utility modules
 ```
+
+## Service Architecture
+Services use manual dependency injection. Initialization order in `init.server.luau`:
+1. `RemoteService:Init()` — creates Remotes folder and all RemoteEvents
+2. `PlayerService:Init(remoteService)` — player state, coins, leaderboard
+3. `RoundService:Init(remoteService, playerService, prisonService)` — game loop
+4. `PrisonService:Init(remoteService, playerService, roundService)` — prison + door
+
+Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and call `RoundService:Start()`.
+
+## Required Workspace Parts (must exist in Studio place file)
+- `PrisonSpawn` — Part inside the castle prison; players teleport here on capture
+- `PrisonExit` — Part outside the prison; freed players teleport here
+- `PrisonDoor` — Part representing the prison door; toggled transparent/collidable
 
 ## File Naming Conventions
 - `*.server.luau` → Script (runs on server)
@@ -36,6 +49,12 @@ src/
 - Linux: edit `.luau` files, run `selene src/` and `stylua src/` before commit
 - Windows VM: run Roblox Studio with Rojo plugin connected to `rojo serve`
 - Build place file: `rojo build -o game.rbxl`
+
+## Key Timing Values
+- `SAFE_ZONE_DURATION = 15s` — players can train on treadmills
+- `KISSY_SPAWN_DELAY = 10s` — Kissy exits castle 10s into SafeZone (last 5s overlap with hunting)
+- `ROUND_DURATION = 300s` (5 min) — hunt phase
+- `ROUND_END_DURATION = 5s` — results display
 
 ## Code Style
 - Tabs for indentation

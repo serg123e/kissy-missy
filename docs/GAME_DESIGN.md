@@ -63,11 +63,11 @@ Tag/chase multiplayer game. Kissy Missy (NPC) lives in a castle and hunts player
 ## Game Flow
 
 ### Round Structure
-1. **Intermission** (15s) — players gather in lobby, scores shown
-2. **Safe zone** (15s) — players spawn around the castle, can train on treadmills, Kissy Missy stays inside
-3. **Hunt** (5 min) — Kissy Missy exits and chases players
-4. **Round end** — either all players caught (Kissy wins) or time runs out (players win)
-5. Back to intermission
+1. **Intermission** (15s) — players gather, scores shown. Waits for minimum 2 players before countdown.
+2. **Safe zone** (15s) — players spawn around the castle, can train on treadmills. Kissy Missy exits the castle after 10s (`KISSY_SPAWN_DELAY`), so the final 5s overlap with active hunting.
+3. **Hunt** (5 min) — Kissy Missy chases players.
+4. **Round end** (5s) — results displayed, survivors awarded coins.
+5. Back to intermission.
 
 ### Win Conditions
 - **Kissy Missy wins:** all players are in prison simultaneously
@@ -102,10 +102,16 @@ Tag/chase multiplayer game. Kissy Missy (NPC) lives in a castle and hunts player
 
 ## Decided Parameters
 - **Max players:** 32
+- **Min players to start:** 2
 - **Round duration:** 5 minutes
+- **Round end display:** 5 seconds
+- **Intermission:** 15 seconds
+- **Safe zone:** 15 seconds (Kissy exits at 10s)
 - **Kissy Missy speed:** constant, does not increase during the round
 - **Treadmill training:** resets each round
 - **Hiding spots:** treehouses on trees, very few (scarcity forces players to move and cooperate)
+- **Coins per survived round:** 100 (only for players present at round start)
+- **Coins per door open:** 25 (flat, regardless of prisoner count)
 
 ## Open Questions
 - Should prison have a visual indicator (glow, sound) when players are inside?

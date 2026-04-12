@@ -51,29 +51,35 @@ function RoundService:_setState(newState: string, duration: number)
 	RemoteService:FireAll(RemoteEventNames.GameStateChanged, state, timeRemaining)
 end
 
-function RoundService:_countdown(duration: number): boolean
+function RoundService:_countdown(duration: number, shouldStop: (() -> boolean)?)
 	timeRemaining = duration
 	while timeRemaining > 0 do
 		task.wait(1)
 		timeRemaining -= 1
+
+		if shouldStop and shouldStop() then
+			return true -- early exit
+		end
 
 		-- Notify clients every 5 seconds or in the last 5 seconds
 		if timeRemaining % 5 == 0 or timeRemaining <= 5 then
 			RemoteService:FireAll(RemoteEventNames.GameStateChanged, state, timeRemaining)
 		end
 	end
-	return true
+	return false -- completed naturally
 end
 
 -- Phase: Intermission
 function RoundService:_runIntermission()
 	self:_setState("Intermission", GameConfig.INTERMISSION_DURATION)
 
-	-- Wait for enough players
+	-- Wait for enough players (no timer while waiting)
 	while #Players:GetPlayers() < GameConfig.MIN_PLAYERS do
 		task.wait(1)
+		RemoteService:FireAll(RemoteEventNames.GameStateChanged, state, GameConfig.INTERMISSION_DURATION)
 	end
 
+	-- Once enough players, run the countdown once
 	self:_countdown(GameConfig.INTERMISSION_DURATION)
 end
 
@@ -82,47 +88,40 @@ function RoundService:_runSafeZone()
 	roundNumber += 1
 	print("[RoundService] Round", roundNumber, "starting")
 
+	PrisonService:Reset() -- teleport captured players out first
+	PlayerService:SetRound(roundNumber)
 	PlayerService:ResetForRound()
-	PrisonService:Reset()
 	self:_setState("SafeZone", GameConfig.SAFE_ZONE_DURATION)
 	self:_countdown(GameConfig.SAFE_ZONE_DURATION)
 end
 
 -- Phase: Hunt (Kissy chases players)
+-- NOTE: Kissy Missy AI is not managed here. The NPC service should listen
+-- for GameStateChanged("Hunt") and delay exit by GameConfig.KISSY_SPAWN_DELAY.
 function RoundService:_runHunt()
 	self:_setState("Hunt", GameConfig.ROUND_DURATION)
 
-	-- Countdown with win condition check each second
-	timeRemaining = GameConfig.ROUND_DURATION
-	while timeRemaining > 0 do
-		task.wait(1)
-		timeRemaining -= 1
-
-		-- Check: all players captured = Kissy wins
+	local kissyWon = self:_countdown(GameConfig.ROUND_DURATION, function()
 		local alive = PlayerService:GetAlivePlayers()
-		if #alive == 0 then
-			print("[RoundService] All players captured — Kissy wins!")
-			return
-		end
+		-- Distinguish "all captured" from "server empty"
+		return #alive == 0 and #Players:GetPlayers() > 0
+	end)
 
-		-- Periodic client updates
-		if timeRemaining % 5 == 0 or timeRemaining <= 5 then
-			RemoteService:FireAll(RemoteEventNames.GameStateChanged, state, timeRemaining)
-		end
+	if kissyWon then
+		print("[RoundService] All players captured — Kissy wins!")
+	else
+		print("[RoundService] Time's up — players win!")
 	end
-
-	-- Time ran out = players win
-	print("[RoundService] Time's up — players win!")
 end
 
 -- Phase: RoundEnd (award coins, show results)
 function RoundService:_runRoundEnd()
-	self:_setState("RoundEnd", 5)
+	self:_setState("RoundEnd", GameConfig.ROUND_END_DURATION)
 
 	-- Award survivors
 	PlayerService:AwardSurvivors()
 
-	self:_countdown(5)
+	self:_countdown(GameConfig.ROUND_END_DURATION)
 end
 
 return RoundService

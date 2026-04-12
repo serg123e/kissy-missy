@@ -2,16 +2,18 @@
 -- All RemoteEvents are created by the server in ReplicatedStorage.Remotes
 
 local RemoteEvents = {
-	-- Server → Client
-	GameStateChanged = "GameStateChanged", -- { state: GameState, timeRemaining: number }
-	PlayerCaptured = "PlayerCaptured", -- { playerId: number }
-	PlayerFreed = "PlayerFreed", -- { playerId: number }
-	CoinsUpdated = "CoinsUpdated", -- { coins: number }
-	SpeedUpdated = "SpeedUpdated", -- { speed: number }
-	DoorStateChanged = "DoorStateChanged", -- { isOpen: boolean }
+	-- Server → All Clients (positional args)
+	GameStateChanged = "GameStateChanged", -- args: state: string, timeRemaining: number
+	PlayerCaptured = "PlayerCaptured", -- args: userId: number
+	PlayerFreed = "PlayerFreed", -- args: userId: number
+	DoorStateChanged = "DoorStateChanged", -- args: isOpen: boolean
 
-	-- Client → Server
-	DoorInteract = "DoorInteract", -- player pressed Y near prison door
+	-- Server → Individual Client (positional args)
+	CoinsUpdated = "CoinsUpdated", -- args: newTotal: number
+	SpeedUpdated = "SpeedUpdated", -- args: newSpeed: number
+
+	-- Client → Server (no args, player is implicit)
+	DoorInteract = "DoorInteract",
 }
 
 return RemoteEvents
