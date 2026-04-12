@@ -14,11 +14,13 @@ local roundNumber: number = 0
 local RemoteService
 local PlayerService
 local PrisonService
+local KissyService
 
-function RoundService:Init(remoteService, playerService, prisonService)
+function RoundService:Init(remoteService, playerService, prisonService, kissyService)
 	RemoteService = remoteService
 	PlayerService = playerService
 	PrisonService = prisonService
+	KissyService = kissyService
 	print("[RoundService] Initialized")
 end
 
@@ -91,13 +93,13 @@ function RoundService:_runSafeZone()
 	PrisonService:Reset() -- teleport captured players out first
 	PlayerService:SetRound(roundNumber)
 	PlayerService:ResetForRound()
+	KissyService:Activate() -- spawn Kissy in castle, starts hunting after KISSY_SPAWN_DELAY
 	self:_setState("SafeZone", GameConfig.SAFE_ZONE_DURATION)
 	self:_countdown(GameConfig.SAFE_ZONE_DURATION)
 end
 
 -- Phase: Hunt (Kissy chases players)
--- NOTE: Kissy Missy AI is not managed here. The NPC service should listen
--- for GameStateChanged("Hunt") and delay exit by GameConfig.KISSY_SPAWN_DELAY.
+-- Kissy Missy is already hunting (activated during SafeZone with KISSY_SPAWN_DELAY).
 function RoundService:_runHunt()
 	self:_setState("Hunt", GameConfig.ROUND_DURATION)
 
@@ -116,6 +118,7 @@ end
 
 -- Phase: RoundEnd (award coins, show results)
 function RoundService:_runRoundEnd()
+	KissyService:Deactivate() -- stop hunting and despawn Kissy
 	self:_setState("RoundEnd", GameConfig.ROUND_END_DURATION)
 
 	-- Award survivors

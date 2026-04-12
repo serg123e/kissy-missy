@@ -10,11 +10,13 @@ local RemoteService = require(Server.Services.RemoteService)
 local PlayerService = require(Server.Services.PlayerService)
 local PrisonService = require(Server.Services.PrisonService)
 local RoundService = require(Server.Services.RoundService)
+local KissyService = require(Server.Services.KissyService)
 
 -- Initialize (order matters)
 RemoteService:Init()
 PlayerService:Init(RemoteService)
-RoundService:Init(RemoteService, PlayerService, PrisonService)
+KissyService:Init(PlayerService)
+RoundService:Init(RemoteService, PlayerService, PrisonService, KissyService)
 PrisonService:Init(RemoteService, PlayerService, RoundService)
 
 -- Wire up: when a player is captured, teleport them to prison

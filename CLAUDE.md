@@ -29,8 +29,9 @@ src/
 Services use manual dependency injection. Initialization order in `init.server.luau`:
 1. `RemoteService:Init()` — creates Remotes folder and all RemoteEvents
 2. `PlayerService:Init(remoteService)` — player state, coins, leaderboard
-3. `RoundService:Init(remoteService, playerService, prisonService)` — game loop
-4. `PrisonService:Init(remoteService, playerService, roundService)` — prison + door
+3. `KissyService:Init(playerService)` — NPC AI, pathfinding, capture
+4. `RoundService:Init(remoteService, playerService, prisonService, kissyService)` — game loop
+5. `PrisonService:Init(remoteService, playerService, roundService)` — prison + door
 
 Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and call `RoundService:Start()`.
 
@@ -38,6 +39,10 @@ Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and 
 - `PrisonSpawn` — Part inside the castle prison; players teleport here on capture
 - `PrisonExit` — Part outside the prison; freed players teleport here
 - `PrisonDoor` — Part representing the prison door; toggled transparent/collidable
+- `KissySpawn` — Part inside the castle; Kissy Missy spawns here each round
+
+## Required ServerStorage Assets
+- `KissyMissy` — Model with Humanoid + HumanoidRootPart; the NPC template cloned each round
 
 ## File Naming Conventions
 - `*.server.luau` → Script (runs on server)

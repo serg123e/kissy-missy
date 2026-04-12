@@ -26,7 +26,45 @@
     "Workspace": {
       "$properties": {
         "FilteringEnabled": true
+      },
+      "PrisonSpawn": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [4, 1, 4],
+          "Position": [0, 1, 0],
+          "Anchored": true,
+          "Transparency": 0.5
+        }
+      },
+      "PrisonExit": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [4, 1, 4],
+          "Position": [10, 1, 0],
+          "Anchored": true,
+          "Transparency": 0.5
+        }
+      },
+      "PrisonDoor": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [6, 8, 1],
+          "Position": [5, 5, 0],
+          "Anchored": true
+        }
+      },
+      "KissySpawn": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [4, 1, 4],
+          "Position": [0, 1, -20],
+          "Anchored": true,
+          "Transparency": 0.5
+        }
       }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage"
     },
     "Lighting": {
       "$properties": {
