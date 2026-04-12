@@ -1,0 +1,18 @@
+# Build outputs
+*.rbxl
+*.rbxlx
+
+# Roblox Studio lock files
+*.rbxlx.lock
+*.rbxl.lock
+
+# Rojo sourcemap
+sourcemap.json
+
+# Wally packages
+Packages/
+wally.lock
+
+# OS files
+.DS_Store
+Thumbs.db
