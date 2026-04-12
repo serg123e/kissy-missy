@@ -1,5 +1,5 @@
 -- Type definitions for the game
-export type GameState = "Lobby" | "Starting" | "Playing" | "Ending"
+export type GameState = "Intermission" | "SafeZone" | "Hunt" | "RoundEnd"
 
 export type PlayerState = "Alive" | "Captured" | "Spectating"
 
