@@ -1,8 +1,44 @@
 -- Client entry point
 -- Kissy Missy's Castle: Tag/Chase game
 
-local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local player = Players.LocalPlayer
+local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
 
-print("[Client] Kissy Missy's Castle loaded for " .. player.Name)
+-- Controllers
+local InputController = require(script.Controllers.InputController)
+local HudController = require(script.UI.HudController)
+
+-- Initialize
+InputController:Init()
+HudController:Init()
+
+-- Connect remote events to HUD
+local remotes = ReplicatedStorage:WaitForChild("Remotes")
+
+local function listen(name: string, handler: (...any) -> ())
+	local remote = remotes:WaitForChild(name)
+	remote.OnClientEvent:Connect(handler)
+end
+
+listen(RemoteEventNames.GameStateChanged, function(state, timeRemaining)
+	HudController:UpdateGameState(state, timeRemaining)
+end)
+
+listen(RemoteEventNames.CoinsUpdated, function(total)
+	HudController:UpdateCoins(total)
+end)
+
+listen(RemoteEventNames.PlayerCaptured, function(userId)
+	HudController:OnPlayerCaptured(userId)
+end)
+
+listen(RemoteEventNames.PlayerFreed, function(userId)
+	HudController:OnPlayerFreed(userId)
+end)
+
+listen(RemoteEventNames.DoorStateChanged, function(isOpen)
+	HudController:OnDoorStateChanged(isOpen)
+end)
+
+print("[Client] Kissy Missy's Castle loaded")
