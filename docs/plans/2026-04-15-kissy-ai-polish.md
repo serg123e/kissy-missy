@@ -71,11 +71,11 @@ Addresses GOTCHA #49. Relies on Task 2's shared path object.
 
 Addresses GOTCHA #52.
 
-- [ ] In `Activate`, after the humanoid is known, connect `humanoid.MoveToFinished:Connect(function(reached) ... end)`.
-- [ ] Handler: if `reached == false`, force recompute (set `lastPathTime = 0`). Guard against stale connections by checking `kissyModel ~= nil`.
-- [ ] Disconnect on `Deactivate` (store the connection handle; call `:Disconnect()`).
-- [ ] Gate.
-- [ ] Commit: `fix: recompute Kissy path on MoveTo 8s timeout (GOTCHA #52)`.
+- [x] In `Activate`, after the humanoid is known, connect `humanoid.MoveToFinished:Connect(function(reached) ... end)`.
+- [x] Handler: if `reached == false`, force recompute (set `lastPathTime = 0`). Guard against stale connections by checking `kissyModel ~= nil`.
+- [x] Disconnect on `Deactivate` (store the connection handle; call `:Disconnect()`).
+- [x] Gate.
+- [x] Commit: `fix: recompute Kissy path on MoveTo 8s timeout (GOTCHA #52)`.
 
 ### Task 5: Tag the spawned Kissy model
 

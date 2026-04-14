@@ -21,6 +21,7 @@ local currentWaypoints: { PathWaypoint } = {}
 local currentWaypointIndex = 0
 local sharedPath: Path? = nil
 local blockedConnection: RBXScriptConnection? = nil
+local moveToFinishedConnection: RBXScriptConnection? = nil
 
 local function _getOrCreatePath(): Path
 	if not sharedPath then
@@ -66,6 +67,17 @@ function KissyService:Activate()
 	self:Deactivate()
 	self:_spawnKissy()
 
+	if kissyModel then
+		local humanoid = kissyModel:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			moveToFinishedConnection = humanoid.MoveToFinished:Connect(function(reached)
+				if not reached and kissyModel ~= nil then
+					lastPathTime = 0
+				end
+			end)
+		end
+	end
+
 	huntThread = task.spawn(function()
 		task.wait(GameConfig.KISSY_SPAWN_DELAY)
 
@@ -88,6 +100,10 @@ function KissyService:Deactivate()
 	if huntThread then
 		task.cancel(huntThread)
 		huntThread = nil
+	end
+	if moveToFinishedConnection then
+		moveToFinishedConnection:Disconnect()
+		moveToFinishedConnection = nil
 	end
 	currentWaypoints = {}
 	currentWaypointIndex = 0
