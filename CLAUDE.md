@@ -70,6 +70,21 @@ All timing, speed, radius, and coin values live in `src/shared/Config/GameConfig
 - [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) — gameplay design document
 - [docs/CLOUD_QUEUE_SPEC.md](docs/CLOUD_QUEUE_SPEC.md) — cloud/queue training system spec (implemented)
 
+## Testing
+
+Automated tests use Lune (standalone Luau runtime). Run the full pre-commit gate:
+
+```bash
+./scripts/test.sh
+```
+
+This runs: `stylua --check src/ tests/` → `selene src/` → `lune run tests/run.luau` → `rojo build -o /tmp/test.rbxl`.
+
+- Tests live in `tests/`. Hand-rolled runner at `tests/lib/runner.luau` — no framework.
+- **In scope:** pure logic in `src/shared/Logic/` (queue state machine, eligibility, player state guards, time formatting) and config integrity.
+- **Out of scope:** anything engine-dependent (pathfinding, CFrame/teleport, RemoteEvent wiring, UI rendering, `CharacterAdded` timing) — verified manually in Studio.
+- Selene runs on `src/` only — `std="roblox"` doesn't recognize Lune's `@lune/*` imports. StyLua formats both `src/` and `tests/`.
+
 ## Code Style
 - Tabs for indentation
 - 120 char line width

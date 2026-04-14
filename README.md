@@ -145,6 +145,14 @@ src/
       RemoteEvents     — remote event name constants
 ```
 
+## Testing
+
+Run the pre-commit gate (format check + lint + tests + build):
+
+```bash
+./scripts/test.sh
+```
+
 ## Development (Linux)
 
 Edit `.luau` files on Linux. Run Roblox Studio on a Windows VM with the Rojo plugin connected via `rojo serve` (use bridged/host-only networking).

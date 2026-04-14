@@ -147,10 +147,10 @@ The goal is **regression protection for logic bugs that are easy to introduce an
 - Modify: `CLAUDE.md`
 - Modify: `README.md` (if test section doesn't exist)
 
-- [ ] `scripts/test.sh` runs: `stylua --check src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`. Exits on first failure. `set -euo pipefail` at the top.
-- [ ] `CLAUDE.md` gains a "Testing" section: where tests live, what's in scope (pure logic in `src/shared/Logic/`), what isn't (engine-dependent behavior), how to run, and the selene-on-`src/`-only caveat.
-- [ ] `README.md` mentions `./scripts/test.sh` as the pre-commit gate.
-- [ ] Run `./scripts/test.sh` end-to-end, confirm green.
+- [x] `scripts/test.sh` runs: `stylua --check src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`. Exits on first failure. `set -euo pipefail` at the top.
+- [x] `CLAUDE.md` gains a "Testing" section: where tests live, what's in scope (pure logic in `src/shared/Logic/`), what isn't (engine-dependent behavior), how to run, and the selene-on-`src/`-only caveat.
+- [x] `README.md` mentions `./scripts/test.sh` as the pre-commit gate.
+- [x] Run `./scripts/test.sh` end-to-end, confirm green.
 
 ### Task 8: Move plan to completed
 
