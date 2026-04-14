@@ -19,6 +19,23 @@ local PATH_RECOMPUTE_INTERVAL = 1 -- seconds between path recomputation
 local lastPathTime = 0
 local currentWaypoints: { PathWaypoint } = {}
 local currentWaypointIndex = 0
+local sharedPath: Path? = nil
+
+local function _getOrCreatePath(): Path
+	if not sharedPath then
+		sharedPath = PathfindingService:CreatePath({
+			AgentRadius = 2,
+			AgentHeight = 5,
+			AgentCanJump = true,
+			Costs = { PrisonInterior = math.huge },
+		})
+	end
+	return sharedPath
+end
+
+local function _destroyPath()
+	sharedPath = nil
+end
 
 -- AI: occasional random target switch
 local RANDOM_RETARGET_CHANCE = 0.1 -- 10% chance per retarget to pick a random player
@@ -64,6 +81,7 @@ function KissyService:Deactivate()
 	end
 	currentWaypoints = {}
 	currentWaypointIndex = 0
+	_destroyPath()
 	self:_despawnKissy()
 end
 
@@ -236,11 +254,7 @@ end
 -- Pathfinding
 
 function KissyService:_computePath(fromPos: Vector3, targetPos: Vector3, humanoid: Humanoid)
-	local path = PathfindingService:CreatePath({
-		AgentRadius = 2,
-		AgentHeight = 5,
-		AgentCanJump = true,
-	})
+	local path = _getOrCreatePath()
 
 	local ok = pcall(function()
 		path:ComputeAsync(fromPos, targetPos)
@@ -248,10 +262,8 @@ function KissyService:_computePath(fromPos: Vector3, targetPos: Vector3, humanoi
 
 	if ok and path.Status == Enum.PathStatus.Success then
 		currentWaypoints = path:GetWaypoints()
-		-- Skip first waypoint (it's the current position)
 		currentWaypointIndex = 2
 	else
-		-- Fallback: move directly toward target
 		currentWaypoints = {}
 		currentWaypointIndex = 0
 		humanoid:MoveTo(targetPos)

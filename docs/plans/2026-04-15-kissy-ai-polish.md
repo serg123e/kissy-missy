@@ -44,12 +44,12 @@ Lays down the workspace part the pathfinding modifier needs. Behavior-neutral un
 
 Addresses GOTCHA #46 (don't `CreatePath` every tick) and consumes the Task 1 modifier.
 
-- [ ] Move path creation out of `_computePath`. Add a module-level lazy initializer that creates the `Path` with `AgentRadius=2`, `AgentHeight=5`, `AgentCanJump=true`, and `Costs = { PrisonInterior = math.huge }`.
-- [ ] `_computePath` now calls `ComputeAsync` on the shared path object. Path status/ waypoint logic unchanged.
-- [ ] Add a `_destroyPath()` helper and call it from `Deactivate` to clear the reference (fresh create on next `Activate`).
-- [ ] Grep-verify: `PathfindingService:CreatePath` appears exactly once in `KissyService.luau`.
-- [ ] Gate.
-- [ ] Commit: `perf: reuse Kissy Path object across recomputes (GOTCHA #46)`.
+- [x] Move path creation out of `_computePath`. Add a module-level lazy initializer that creates the `Path` with `AgentRadius=2`, `AgentHeight=5`, `AgentCanJump=true`, and `Costs = { PrisonInterior = math.huge }`.
+- [x] `_computePath` now calls `ComputeAsync` on the shared path object. Path status/ waypoint logic unchanged.
+- [x] Add a `_destroyPath()` helper and call it from `Deactivate` to clear the reference (fresh create on next `Activate`).
+- [x] Grep-verify: `PathfindingService:CreatePath` appears exactly once in `KissyService.luau`.
+- [x] Gate.
+- [x] Commit: `perf: reuse Kissy Path object across recomputes (GOTCHA #46)`.
 
 ### Task 3: Subscribe to `path.Blocked` with ahead-of-agent guard
 
