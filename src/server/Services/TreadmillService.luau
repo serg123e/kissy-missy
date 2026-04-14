@@ -202,12 +202,22 @@ function TreadmillService:_advanceQueue(treadmillName: string)
 	PlayerService:UnlockMovement(nextPlayer)
 
 	local character = nextPlayer.Character
-	if character then
-		local hrp = character:FindFirstChild("HumanoidRootPart")
-		if hrp then
-			hrp.CFrame = tm.part.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
-		end
+	local hrp = character and character:FindFirstChild("HumanoidRootPart")
+	if not hrp then
+		playerTreadmill[nextPlayer] = nil
+		RemoteService:FireClient(nextPlayer, RemoteEventNames.QueueStateChanged, {
+			treadmillName = treadmillName,
+			position = nil,
+			isActive = false,
+			isRejected = false,
+		})
+		self:_notifyQueue(treadmillName)
+		self:_positionQueuedPlayers(treadmillName)
+		self:_advanceQueue(treadmillName)
+		return
 	end
+
+	hrp.CFrame = tm.part.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
 
 	tm.activeUser = nextPlayer
 	tm.lastInputTime = os.clock()
@@ -308,6 +318,27 @@ function TreadmillService:_tick()
 	end
 
 	for treadmillName, tm in treadmills do
+		local queueChanged = false
+		for i = #tm.queue, 1, -1 do
+			local queuedPlayer = tm.queue[i]
+			if not queuedPlayer.Character or not queuedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+				table.remove(tm.queue, i)
+				PlayerService:UnlockMovement(queuedPlayer)
+				playerTreadmill[queuedPlayer] = nil
+				RemoteService:FireClient(queuedPlayer, RemoteEventNames.QueueStateChanged, {
+					treadmillName = treadmillName,
+					position = nil,
+					isActive = false,
+					isRejected = false,
+				})
+				queueChanged = true
+			end
+		end
+		if queueChanged then
+			self:_notifyQueue(treadmillName)
+			self:_positionQueuedPlayers(treadmillName)
+		end
+
 		if tm.activeUser then
 			local character = tm.activeUser.Character
 			local hrp = character and character:FindFirstChild("HumanoidRootPart")
