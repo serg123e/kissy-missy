@@ -345,6 +345,17 @@ function TreadmillService:_tick()
 			local humanoid = character and character:FindFirstChild("Humanoid")
 
 			if not hrp then
+				local player = tm.activeUser
+				tm.activeUser = nil
+				tm.lastInputTime = nil
+				playerTreadmill[player] = nil
+				RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+					treadmillName = treadmillName,
+					position = nil,
+					isActive = false,
+					isRejected = false,
+				})
+				self:_advanceQueue(treadmillName)
 				continue
 			end
 
