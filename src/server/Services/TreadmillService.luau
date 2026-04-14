@@ -9,7 +9,6 @@ type TreadmillState = {
 	part: BasePart,
 	activeUser: Player?,
 	queue: { Player },
-	activeStartTime: number?,
 	lastInputTime: number?,
 }
 
@@ -38,7 +37,6 @@ function TreadmillService:Start()
 					part = child,
 					activeUser = nil,
 					queue = {},
-					activeStartTime = nil,
 					lastInputTime = nil,
 				}
 			end
@@ -115,7 +113,6 @@ function TreadmillService:OnQueueJoin(player: Player, treadmillName: string)
 
 	if not tm.activeUser then
 		tm.activeUser = player
-		tm.activeStartTime = os.clock()
 		tm.lastInputTime = os.clock()
 		playerTreadmill[player] = treadmillName
 		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
@@ -163,7 +160,6 @@ function TreadmillService:OnQueueLeave(player: Player)
 
 	if tm.activeUser == player then
 		tm.activeUser = nil
-		tm.activeStartTime = nil
 		tm.lastInputTime = nil
 		playerTreadmill[player] = nil
 		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
@@ -205,7 +201,6 @@ function TreadmillService:_advanceQueue(treadmillName: string)
 	local nextPlayer = table.remove(tm.queue, 1)
 	PlayerService:UnlockMovement(nextPlayer)
 	tm.activeUser = nextPlayer
-	tm.activeStartTime = os.clock()
 	tm.lastInputTime = os.clock()
 	RemoteService:FireClient(nextPlayer, RemoteEventNames.QueueStateChanged, {
 		treadmillName = treadmillName,
@@ -272,7 +267,6 @@ function TreadmillService:ResetAllQueues()
 		if tm.activeUser then
 			local player = tm.activeUser
 			tm.activeUser = nil
-			tm.activeStartTime = nil
 			tm.lastInputTime = nil
 			playerTreadmill[player] = nil
 			RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
@@ -315,7 +309,6 @@ function TreadmillService:_tick()
 			if tm.lastInputTime and os.clock() - tm.lastInputTime > GameConfig.AFK_KICK_TIMEOUT then
 				local player = tm.activeUser
 				tm.activeUser = nil
-				tm.activeStartTime = nil
 				tm.lastInputTime = nil
 				playerTreadmill[player] = nil
 				RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {

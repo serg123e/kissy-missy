@@ -16,10 +16,9 @@ local RemoteEvents = {
 	DoorInteract = "DoorInteract",
 
 	-- Queue system
-	QueueJoin = "QueueJoin",
-	QueueLeave = "QueueLeave",
-	QueueStateChanged = "QueueStateChanged",
-	MovementLockChanged = "MovementLockChanged",
+	QueueJoin = "QueueJoin", -- Client → Server; args: treadmillName: string
+	QueueLeave = "QueueLeave", -- Client → Server; no args
+	QueueStateChanged = "QueueStateChanged", -- Server → Individual Client; args: { treadmillName, position?, isActive, isRejected }
 }
 
 return RemoteEvents

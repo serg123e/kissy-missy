@@ -72,6 +72,7 @@ Kissy Missy cannot reach the cloud. Enforced by: her target list is filtered to 
 | `MAX_QUEUE_LENGTH` | 10 | `GameConfig.luau` (new) |
 | `AFK_KICK_TIMEOUT` | 60 seconds | `GameConfig.luau` (new) |
 | `QUEUE_JOIN_KEY` | `Enum.KeyCode.E` | `GameConfig.luau` (new) |
+| `QUEUE_JOIN_RADIUS` | 8 studs | `GameConfig.luau` (new) |
 | Treadmill count | 5 (4 free + 1 VIP) | Workspace |
 
 Existing timing/speed values live in `src/shared/Config/GameConfig.luau` — see there for `SAFE_ZONE_DURATION`, `MAX_PLAYER_SPEED`, etc.
@@ -110,20 +111,22 @@ Each layer is independently testable. Build and verify one before moving to the 
 ### Layer 6 — VIP treadmill (deferred)
 - Scoped out of this iteration. VIP treadmill exists visually but behaves as a regular treadmill. Revisit when monetization is prioritized.
 
-## Open Questions
+## Resolved Questions
 
-- **Queued player visual**: exact spacing between players in line, and how to position them (Anchored parts behind the treadmill? Moved by server via CFrame?)
-- **AFK detection**: use `Humanoid.MoveDirection.Magnitude > 0` per frame, or listen to `InputBegan` client-side and replicate?
-- **Queue full feedback**: toast notification, floating text, or chat message?
-- **Voluntary leave cooldown**: can a player immediately re-join the same queue at the back, or is there a short cooldown?
+- **Queued player visual**: Server positions queued players via `CFrame.lookAt` along the treadmill's `-LookVector`, spaced `QUEUE_SPACING = 3` studs apart. Server sets `HumanoidRootPart.CFrame` directly.
+- **AFK detection**: Server-side polling of `Humanoid.MoveDirection.Magnitude > 0` every `TREADMILL_TICK_SECONDS`. No client-side replication needed.
+- **Queue full feedback**: Toast-style notification in the HUD (existing `_notify` method, auto-hides after 3 seconds).
+- **Voluntary leave cooldown**: No cooldown. Players can immediately re-join the same queue at the back.
 
 ## Affected subsystems
 
-- `TreadmillService` — full rewrite (queue state, FIFO, access control, movement lock coordination)
-- `PlayerService` — split `ResetForRound` into cloud + castle teleport phases; add `TeleportToCloud` method
-- `RoundService` — call cloud teleport at Safe Zone start; synchronous release sequence at Safe Zone end
-- `HudController` (client) — add "Leave Queue" button; queue-full notification
-- `InputController` (client) — add E key → fire `QueueJoin` remote
-- `RemoteEvents` — new events: `QueueJoin`, `QueueLeave`, `QueueStateChanged` (notify client of position in queue or "queue full" rejection)
-- `GameConfig` — add `MAX_QUEUE_LENGTH`, `AFK_KICK_TIMEOUT`, `QUEUE_JOIN_KEY`
-- Workspace — add `CloudSpawn` Part, cloud platform geometry (fence + invisible wall)
+- `TreadmillService` — full rewrite (queue state, FIFO, access control, movement lock coordination, AFK kick, `ResetAllQueues`)
+- `PlayerService` — split `ResetForRound` into `TeleportAllToCloud` + `TeleportAllToCastle`; add `LockMovement`/`UnlockMovement`, `SnapshotEligible`, `SetOnAllCaptured`
+- `RoundService` — call cloud teleport at Safe Zone start; synchronous release sequence at Safe Zone end; eager win check via `huntEarlyTermination` flag; late-inject `TreadmillService` via `SetTreadmillService`
+- `KissyService` — phase-aware AI: `_huntTick` skips chase when `RoundService:GetState() ~= "Hunt"`; late-inject `RoundService` via `SetRoundService`
+- `HudController` (client) — add queue status label, "Leave Queue"/"Leave Treadmill" button; queue-full notification
+- `InputController` (client) — add E key → fire `QueueJoin` remote with nearest treadmill name
+- `RemoteEvents` — new events: `QueueJoin`, `QueueLeave`, `QueueStateChanged`
+- `GameConfig` — add `MAX_QUEUE_LENGTH`, `AFK_KICK_TIMEOUT`, `QUEUE_JOIN_KEY`, `QUEUE_JOIN_RADIUS`
+- Workspace — add `CloudSpawn` Part, `CloudPlatform` Part, reposition treadmills to cloud elevation
+- `init.server.luau` — late-inject wiring for `RoundService:SetTreadmillService` and `KissyService:SetRoundService`

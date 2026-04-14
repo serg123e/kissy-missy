@@ -4,6 +4,7 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
 
 local HudController = {}
 
@@ -103,9 +104,11 @@ function HudController:OnQueueStateChanged(data: {
 
 	if data.isActive then
 		queueStatusLabel.Text = "Active on " .. data.treadmillName
-		leaveQueueButton.Visible = false
+		leaveQueueButton.Text = "Leave Treadmill"
+		leaveQueueButton.Visible = true
 	else
 		queueStatusLabel.Text = "Queue #" .. tostring(data.position - 1) .. " for " .. data.treadmillName
+		leaveQueueButton.Text = "Leave Queue"
 		leaveQueueButton.Visible = true
 	end
 	queueStatusFrame.Visible = true
@@ -223,7 +226,6 @@ function HudController:_createUI()
 	leaveCorner.Parent = leaveQueueButton
 
 	local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
-	local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
 	local queueLeaveRemote = remotesFolder:WaitForChild(RemoteEventNames.QueueLeave)
 	leaveQueueButton.Activated:Connect(function()
 		queueLeaveRemote:FireServer()

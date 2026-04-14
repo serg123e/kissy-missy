@@ -54,7 +54,7 @@ function PlayerService:_onPlayerAdded(player: Player)
 		speed = GameConfig.BASE_PLAYER_SPEED,
 		captureTime = nil,
 		coins = 0,
-		joinedRound = currentRound,
+		joinedRound = 0,
 		movementLocked = false,
 	}
 
@@ -190,8 +190,6 @@ function PlayerService:LockMovement(player: Player)
 			humanoid.WalkSpeed = 0
 		end
 	end
-
-	RemoteService:FireClient(player, RemoteEventNames.MovementLockChanged, true)
 end
 
 function PlayerService:UnlockMovement(player: Player)
@@ -209,8 +207,6 @@ function PlayerService:UnlockMovement(player: Player)
 			humanoid.WalkSpeed = data.speed
 		end
 	end
-
-	RemoteService:FireClient(player, RemoteEventNames.MovementLockChanged, false)
 end
 
 function PlayerService:SetSpeed(player: Player, speed: number)
@@ -221,11 +217,10 @@ function PlayerService:SetSpeed(player: Player, speed: number)
 
 	data.speed = math.min(speed, GameConfig.MAX_PLAYER_SPEED)
 
-	-- Apply to character
 	local character = player.Character
 	if character then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
-		if humanoid then
+		if humanoid and not data.movementLocked then
 			humanoid.WalkSpeed = data.speed
 		end
 	end
@@ -242,6 +237,7 @@ function PlayerService:ResetForRound()
 		data.state = "Alive"
 		data.speed = GameConfig.BASE_PLAYER_SPEED
 		data.captureTime = nil
+		data.movementLocked = false
 		self:SetSpeed(player, GameConfig.BASE_PLAYER_SPEED)
 	end
 end
