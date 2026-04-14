@@ -154,8 +154,8 @@ The goal is **regression protection for logic bugs that are easy to introduce an
 
 ### Task 8: Move plan to completed
 
-- [ ] `git mv docs/plans/2026-04-14-automated-tests.md docs/plans/completed/`
-- [ ] Commit.
+- [x] `git mv docs/plans/2026-04-14-automated-tests.md docs/plans/completed/`
+- [x] Commit.
 
 ## Done When
 
