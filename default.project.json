@@ -59,7 +59,7 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 201, 30],
+            "Position": [30, 201, -16],
             "Anchored": true
           }
         },
@@ -67,7 +67,7 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 201, 38],
+            "Position": [30, 201, -8],
             "Anchored": true
           }
         },
@@ -75,7 +75,7 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 201, 46],
+            "Position": [30, 201, 0],
             "Anchored": true
           }
         },
@@ -83,7 +83,7 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 201, 54],
+            "Position": [30, 201, 8],
             "Anchored": true
           }
         },
@@ -91,7 +91,7 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 201, 62],
+            "Position": [30, 201, 16],
             "Anchored": true
           }
         }
