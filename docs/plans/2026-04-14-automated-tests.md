@@ -75,17 +75,17 @@ The goal is **regression protection for logic bugs that are easy to introduce an
 - Create: `tests/eligibility_test.luau`
 - Modify: `src/server/Services/PlayerService.luau`
 
-- [ ] `EligibilityLogic.luau` exports:
+- [x] `EligibilityLogic.luau` exports:
   - `isEligibleForSurvivalReward(data, currentRound) -> boolean` — returns true iff `data.state == "Alive" and data.joinedRound == currentRound`.
   - `snapshotEligible(playerDataMap, roundNumber)` — mutates each entry to set `joinedRound = roundNumber`.
-- [ ] `PlayerService:AwardSurvivors` and `PlayerService:SnapshotEligible` delegate to `EligibilityLogic`.
-- [ ] Tests:
+- [x] `PlayerService:AwardSurvivors` and `PlayerService:SnapshotEligible` delegate to `EligibilityLogic`.
+- [x] Tests:
   - player alive + joinedRound matches → eligible
   - player alive + joinedRound < currentRound (mid-round joiner) → NOT eligible
   - player captured + joinedRound matches → NOT eligible
   - `snapshotEligible` updates all entries to given round
   - empty map → no-op, no crash
-- [ ] Run full gate: `stylua src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`.
+- [x] Run full gate: `stylua src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`.
 
 ### Task 4: Extract player state guards + tests
 

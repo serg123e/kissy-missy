@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
+local EligibilityLogic = require(ReplicatedStorage.Shared.Logic.EligibilityLogic)
 
 local PlayerService = {}
 
@@ -243,9 +244,7 @@ function PlayerService:ResetForRound()
 end
 
 function PlayerService:SnapshotEligible(roundNumber: number)
-	for _, data in playerData do
-		data.joinedRound = roundNumber
-	end
+	EligibilityLogic.snapshotEligible(playerData, roundNumber)
 end
 
 function PlayerService:TeleportAllToCloud()
@@ -302,8 +301,7 @@ end
 
 function PlayerService:AwardSurvivors()
 	for player, data in playerData do
-		-- Only award players who were present at round start (not mid-round joiners)
-		if data.state == "Alive" and data.joinedRound == currentRound then
+		if EligibilityLogic.isEligibleForSurvivalReward(data, currentRound) then
 			self:AddCoins(player, GameConfig.COINS_SURVIVE_ROUND)
 			print("[PlayerService]", player.Name, "survived — earned", GameConfig.COINS_SURVIVE_ROUND, "coins")
 		end
