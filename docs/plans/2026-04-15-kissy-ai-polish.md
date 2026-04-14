@@ -84,11 +84,11 @@ Addresses GOTCHA #52.
 
 Prerequisite for the client smoothing controller (Task 7).
 
-- [ ] Add `local CollectionService = game:GetService("CollectionService")` at the top of the service.
-- [ ] In `_spawnKissy`, after `kissyModel.Parent = workspace`, call `CollectionService:AddTag(kissyModel, "KissyNPC")`.
-- [ ] No need to explicitly remove the tag — `Destroy()` removes all tags.
-- [ ] Gate.
-- [ ] Commit: `feat: tag spawned Kissy with KissyNPC for client lookup`.
+- [x] Add `local CollectionService = game:GetService("CollectionService")` at the top of the service.
+- [x] In `_spawnKissy`, after `kissyModel.Parent = workspace`, call `CollectionService:AddTag(kissyModel, "KissyNPC")`.
+- [x] No need to explicitly remove the tag — `Destroy()` removes all tags.
+- [x] Gate.
+- [x] Commit: `feat: tag spawned Kissy with KissyNPC for client lookup`.
 
 ### Task 6: Add `KISSY_VISUAL_LERP_RATE` to GameConfig
 

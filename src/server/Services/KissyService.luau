@@ -1,4 +1,5 @@
 -- Manages Kissy Missy NPC: spawning, AI chase behavior, and player capture
+local CollectionService = game:GetService("CollectionService")
 local PathfindingService = game:GetService("PathfindingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
@@ -130,6 +131,7 @@ function KissyService:_spawnKissy()
 
 	kissyModel = template:Clone()
 	kissyModel.Parent = workspace
+	CollectionService:AddTag(kissyModel, "KissyNPC")
 
 	local humanoidRootPart = kissyModel:FindFirstChild("HumanoidRootPart")
 	if humanoidRootPart then
