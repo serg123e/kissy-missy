@@ -200,6 +200,15 @@ function TreadmillService:_advanceQueue(treadmillName: string)
 
 	local nextPlayer = table.remove(tm.queue, 1)
 	PlayerService:UnlockMovement(nextPlayer)
+
+	local character = nextPlayer.Character
+	if character then
+		local hrp = character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			hrp.CFrame = tm.part.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
+		end
+	end
+
 	tm.activeUser = nextPlayer
 	tm.lastInputTime = os.clock()
 	RemoteService:FireClient(nextPlayer, RemoteEventNames.QueueStateChanged, {
