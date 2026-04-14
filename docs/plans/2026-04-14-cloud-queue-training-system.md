@@ -38,10 +38,10 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 **Files:**
 - Modify: `default.project.json`
 
-- [ ] Add CloudSpawn Part to Workspace in project.json (position at Y=200+)
-- [ ] Add CloudPlatform Part to Workspace (large enough for 5 treadmills + queues)
-- [ ] Reposition Treadmills folder entries to cloud elevation (Y=200+)
-- [ ] Run `rojo build -o /tmp/test.rbxl` to verify project builds
+- [x] Add CloudSpawn Part to Workspace in project.json (position at Y=200+)
+- [x] Add CloudPlatform Part to Workspace (large enough for 5 treadmills + queues)
+- [x] Reposition Treadmills folder entries to cloud elevation (Y=200+)
+- [x] Run `rojo build -o /tmp/test.rbxl` to verify project builds
 
 ### Task 3: Split PlayerService state reset from teleport
 

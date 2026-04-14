@@ -59,7 +59,7 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 1, 30],
+            "Position": [30, 201, 30],
             "Anchored": true
           }
         },
@@ -67,7 +67,7 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 1, 38],
+            "Position": [30, 201, 38],
             "Anchored": true
           }
         },
@@ -75,7 +75,7 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 1, 46],
+            "Position": [30, 201, 46],
             "Anchored": true
           }
         },
@@ -83,7 +83,15 @@
           "$className": "Part",
           "$properties": {
             "Size": [8, 1, 4],
-            "Position": [30, 1, 54],
+            "Position": [30, 201, 54],
+            "Anchored": true
+          }
+        },
+        "Treadmill5": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [8, 1, 4],
+            "Position": [30, 201, 62],
             "Anchored": true
           }
         }
@@ -138,6 +146,23 @@
           "Position": [0, 1, -20],
           "Anchored": true,
           "Transparency": 0.5
+        }
+      },
+      "CloudSpawn": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [4, 1, 4],
+          "Position": [0, 201, 0],
+          "Anchored": true,
+          "Transparency": 0.5
+        }
+      },
+      "CloudPlatform": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [80, 1, 80],
+          "Position": [0, 200, 0],
+          "Anchored": true
         }
       }
     },
