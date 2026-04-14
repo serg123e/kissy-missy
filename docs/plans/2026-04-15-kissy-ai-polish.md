@@ -110,17 +110,17 @@ Designer-tunable lerp speed for the smoothing controller (Task 7).
 
 The visual-only client controller from spec D1 + D6 + D7.
 
-- [ ] Controller module exports `Init(): ()`.
-- [ ] `Init` captures references: `RunService`, `CollectionService`, `GameConfig`.
-- [ ] Set up state: a single `currentKissy: { model: Model, hrp: BasePart, target: CFrame, conn: RBXScriptConnection? }?`. One Kissy at a time (spec assumption).
-- [ ] Subscribe to `CollectionService:GetInstanceAddedSignal("KissyNPC")` → on add, wait for `HumanoidRootPart`, take its current CFrame as the initial target, connect `GetPropertyChangedSignal("CFrame")` to update `currentKissy.target`.
-- [ ] Also iterate `CollectionService:GetTagged("KissyNPC")` at `Init` time so a Kissy that spawned before this controller started is still picked up.
-- [ ] Subscribe to `GetInstanceRemovedSignal("KissyNPC")` → on remove, disconnect the CFrame-changed signal, clear state.
-- [ ] `RunService.RenderStepped:Connect(function(dt) ... end)`: if `currentKissy` is set, compute `alpha = 1 - math.exp(-dt * GameConfig.KISSY_VISUAL_LERP_RATE)`, apply `hrp.CFrame = hrp.CFrame:Lerp(target, alpha)`.
-- [ ] Large-jump snap: if `(hrp.Position - target.Position).Magnitude >= 20`, set `hrp.CFrame = target` immediately, skip lerp this frame.
-- [ ] Register the controller in `src/client/init.client.luau` alongside the other controllers.
-- [ ] Gate.
-- [ ] Commit: `feat: smooth Kissy visual movement client-side (GOTCHA #44)`.
+- [x] Controller module exports `Init(): ()`.
+- [x] `Init` captures references: `RunService`, `CollectionService`, `GameConfig`.
+- [x] Set up state: a single `currentKissy: { model: Model, hrp: BasePart, target: CFrame, conn: RBXScriptConnection? }?`. One Kissy at a time (spec assumption).
+- [x] Subscribe to `CollectionService:GetInstanceAddedSignal("KissyNPC")` → on add, wait for `HumanoidRootPart`, take its current CFrame as the initial target, connect `GetPropertyChangedSignal("CFrame")` to update `currentKissy.target`.
+- [x] Also iterate `CollectionService:GetTagged("KissyNPC")` at `Init` time so a Kissy that spawned before this controller started is still picked up.
+- [x] Subscribe to `GetInstanceRemovedSignal("KissyNPC")` → on remove, disconnect the CFrame-changed signal, clear state.
+- [x] `RunService.RenderStepped:Connect(function(dt) ... end)`: if `currentKissy` is set, compute `alpha = 1 - math.exp(-dt * GameConfig.KISSY_VISUAL_LERP_RATE)`, apply `hrp.CFrame = hrp.CFrame:Lerp(target, alpha)`.
+- [x] Large-jump snap: if `(hrp.Position - target.Position).Magnitude >= 20`, set `hrp.CFrame = target` immediately, skip lerp this frame.
+- [x] Register the controller in `src/client/init.client.luau` alongside the other controllers.
+- [x] Gate.
+- [x] Commit: `feat: smooth Kissy visual movement client-side (GOTCHA #44)`.
 
 ### Task 8: Playtest validation and final docs pass
 

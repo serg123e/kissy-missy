@@ -7,10 +7,12 @@ local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
 
 -- Controllers
 local InputController = require(script.Controllers.InputController)
+local KissySmoothingController = require(script.Controllers.KissySmoothingController)
 local HudController = require(script.UI.HudController)
 
 -- Initialize
 InputController:Init()
+KissySmoothingController:Init()
 HudController:Init()
 
 -- Connect remote events to HUD
