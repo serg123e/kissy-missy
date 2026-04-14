@@ -45,12 +45,16 @@ Two distinct areas:
 - Standing on a treadmill increases speed over time (+0.5 every 3s)
 
 #### Queue system
-- If a treadmill is occupied, approaching players enter a **queue** for that treadmill
+- All players arrive at a **single neutral entry point** on the cloud when Safe Zone starts
+- From there, a player walks up to any treadmill to join its queue
+- If the treadmill is free, the player immediately starts training
+- If occupied, they enter the **queue** for that treadmill
 - Queue is FIFO (first-in-first-out)
-- **Maximum queue length: 10 players** per treadmill
-- When the current player leaves (Safe Zone ends, moves off, disconnects, or is AFK-kicked), the next player in queue takes the slot
-- **AFK kick:** if a player on a treadmill is idle (not moving / no input) for a threshold duration, they are removed from the treadmill to let the queue progress
-- Visual indicators show queue position for each treadmill
+- **Maximum queue length: 10 players** per treadmill. If the queue is full, no more players can join it
+- **Queue positioning:** players visually line up one behind another behind the treadmill. Movement is locked while queued — players can only rotate in place (look around) until they reach the treadmill or voluntarily leave the queue
+- A player can **voluntarily leave** a treadmill or queue at any time (walks away → next in queue takes the slot)
+- **AFK kick:** if a player on a treadmill is idle (no movement input) for **60 seconds**, they are automatically removed to let the queue progress
+- When the current player leaves (voluntary, Safe Zone ends, disconnects, or AFK-kicked), the next player in queue takes the slot
 - Queue resets at the end of each Safe Zone
 
 ### Prison
@@ -152,32 +156,22 @@ Two distinct areas:
 - **Treadmill training:** resets each round
 - **Treadmill count:** 5 total (4 free + 1 VIP)
 - **Treadmill occupancy:** 1 player at a time, others queue FIFO
-- **Max queue length:** 10 players per treadmill
-- **AFK kick:** idle players are removed from the treadmill
+- **Max queue length:** 10 players per treadmill (full queue rejects new players)
+- **AFK kick timeout:** 60 seconds of no movement input
+- **Queue behavior:** players lined up behind the treadmill, movement locked (rotation only) until their turn or they leave
+- **Voluntary leave:** players can leave a treadmill or queue at any time
 - **Cloud safety:** fence + invisible wall around the edge (players cannot fall off)
-- **Teleport mode:** automatic — players are teleported to the cloud at Safe Zone start, no manual portal
+- **Teleport mode:** automatic — all players teleported to a single neutral entry point on the cloud at Safe Zone start
 - **Hiding spots:** treehouses on trees, very few (scarcity forces movement and cooperation)
 - **Coins per survived round:** 100 (only for players present at round start)
 - **Coins per door open:** 25 (flat, regardless of prisoner count)
 
 ## Open Questions
 
-### Cloud & Safe Zone
-- Do players appear at a neutral entry point (can walk to any treadmill) or are they distributed across queues automatically?
-- Can players voluntarily leave a treadmill/queue before Safe Zone ends? (Probably yes — free movement on the cloud)
-
-### Treadmills & Queue
-- **AFK kick threshold:** how many seconds of idle → kick? (suggest 5s)
-- How is queue position visually indicated? (Numbered spots on the ground? UI label above head?)
-- What happens if the queue is full (10 players) and another player approaches? (Blocked / shown message / auto-route to shortest queue?)
-
-### VIP Treadmill (deferred)
-- **Mechanical benefit** — to be decided when monetization is prioritized. Options to revisit:
-  - (a) Faster training (+1.0/3s vs +0.5/3s)
-  - (b) Guaranteed access / separate VIP-only queue
-  - (c) Higher speed cap (e.g. 26 studs/s)
-  - (d) Cosmetic only
-- **Purchase model:** Gamepass (permanent) vs Developer Product (per-round)?
+### VIP Treadmill — DEFERRED
+The entire VIP monetization system (mechanical benefit, purchase model, UI) is parked for now. The VIP treadmill exists visually but behaves identically to the regular ones until monetization is prioritized. Options to revisit when we come back to it:
+- **Mechanical benefit:** (a) faster training (+1.0/3s), (b) guaranteed/separate queue, (c) higher speed cap (26 studs/s), (d) cosmetic only
+- **Purchase model:** Gamepass (permanent) vs Developer Product (per-round)
 
 ### Other
 - Should prison have a visual indicator (glow, sound) when players are inside?
