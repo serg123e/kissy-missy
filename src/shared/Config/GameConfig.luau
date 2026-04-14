@@ -10,6 +10,7 @@ local GameConfig = {
 	KISSY_SPEED = 28, -- faster than max player speed
 	KISSY_CATCH_RADIUS = 5, -- studs to catch a player
 	KISSY_SPAWN_DELAY = 10, -- seconds before Kissy leaves the castle
+	KISSY_VISUAL_LERP_RATE = 12, -- 1/s — higher = snappier client-side smoothing
 
 	-- Prison settings
 	PRISON_DOOR_OPEN_TIME = 5, -- seconds door stays open after player presses Y

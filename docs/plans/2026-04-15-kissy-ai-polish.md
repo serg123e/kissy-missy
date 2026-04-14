@@ -97,10 +97,10 @@ Prerequisite for the client smoothing controller (Task 7).
 
 Designer-tunable lerp speed for the smoothing controller (Task 7).
 
-- [ ] Add `KISSY_VISUAL_LERP_RATE = 12` (units: 1/s — higher = snappier). Include a one-line comment explaining the unit.
-- [ ] Update the `config_test.luau` sanity test to cover the new key: assert it's a positive number. (One-line addition; keeps our pattern of protecting GameConfig invariants.)
-- [ ] Gate.
-- [ ] Commit: `feat: add KISSY_VISUAL_LERP_RATE to GameConfig`.
+- [x] Add `KISSY_VISUAL_LERP_RATE = 12` (units: 1/s — higher = snappier). Include a one-line comment explaining the unit.
+- [x] Update the `config_test.luau` sanity test to cover the new key: assert it's a positive number. (One-line addition; keeps our pattern of protecting GameConfig invariants.)
+- [x] Gate.
+- [x] Commit: `feat: add KISSY_VISUAL_LERP_RATE to GameConfig`.
 
 ### Task 7: Create `KissySmoothingController` and wire it on the client
 

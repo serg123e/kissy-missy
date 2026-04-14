@@ -29,6 +29,12 @@ describe("GameConfig", function()
 		end)
 	end)
 
+	describe("visual smoothing", function()
+		it("KISSY_VISUAL_LERP_RATE > 0", function()
+			assertTrue(GameConfig.KISSY_VISUAL_LERP_RATE > 0, "lerp rate must be positive")
+		end)
+	end)
+
 	describe("queue bounds", function()
 		it("MAX_QUEUE_LENGTH >= 1", function()
 			assertTrue(GameConfig.MAX_QUEUE_LENGTH >= 1, "queue must allow at least 1")
