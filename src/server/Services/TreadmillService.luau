@@ -301,7 +301,24 @@ function TreadmillService:_tick()
 	for treadmillName, tm in treadmills do
 		if tm.activeUser then
 			local character = tm.activeUser.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
 			local humanoid = character and character:FindFirstChild("Humanoid")
+
+			if hrp and (hrp.Position - tm.part.Position).Magnitude > GameConfig.QUEUE_JOIN_RADIUS then
+				local player = tm.activeUser
+				tm.activeUser = nil
+				tm.lastInputTime = nil
+				playerTreadmill[player] = nil
+				RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+					treadmillName = treadmillName,
+					position = nil,
+					isActive = false,
+					isRejected = false,
+				})
+				self:_advanceQueue(treadmillName)
+				continue
+			end
+
 			if humanoid and humanoid.MoveDirection.Magnitude > 0 then
 				tm.lastInputTime = os.clock()
 			end
