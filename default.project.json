@@ -164,6 +164,49 @@
           "Position": [0, 200, 0],
           "Anchored": true
         }
+      },
+      "CloudWalls": {
+        "$className": "Folder",
+        "WallNorth": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [80, 20, 1],
+            "Position": [0, 210, 40],
+            "Anchored": true,
+            "Transparency": 1,
+            "CanCollide": true
+          }
+        },
+        "WallSouth": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [80, 20, 1],
+            "Position": [0, 210, -40],
+            "Anchored": true,
+            "Transparency": 1,
+            "CanCollide": true
+          }
+        },
+        "WallEast": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [1, 20, 80],
+            "Position": [40, 210, 0],
+            "Anchored": true,
+            "Transparency": 1,
+            "CanCollide": true
+          }
+        },
+        "WallWest": {
+          "$className": "Part",
+          "$properties": {
+            "Size": [1, 20, 80],
+            "Position": [-40, 210, 0],
+            "Anchored": true,
+            "Transparency": 1,
+            "CanCollide": true
+          }
+        }
       }
     },
     "ServerStorage": {

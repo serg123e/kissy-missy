@@ -47,6 +47,7 @@ Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and 
 - `SpawnLocations` — Folder with SpawnLocation children; players teleport here at Hunt start
 - `CloudSpawn` — Part on the cloud platform; all players teleport here at Safe Zone start
 - `CloudPlatform` — Large Part at cloud elevation; the platform players stand on during Safe Zone
+- `CloudWalls` — Folder with 4 invisible wall Parts around the cloud platform edge; prevents players from falling off
 
 ## Required ServerStorage Assets
 - `KissyMissy` — Model with Humanoid + HumanoidRootPart; the NPC template cloned each round
