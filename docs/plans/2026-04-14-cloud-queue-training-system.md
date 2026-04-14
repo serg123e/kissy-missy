@@ -48,10 +48,10 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 **Files:**
 - Modify: `src/server/Services/PlayerService.luau`
 
-- [ ] Extract teleport logic from `ResetForRound()` so it only resets state (state=Alive, speed=base, captureTime=nil, joinedRound update, SetSpeed call)
-- [ ] Add `TeleportAllToCloud()` method -- iterates all players, teleports each to CloudSpawn
-- [ ] Add `TeleportAllToCastle()` method -- teleports to random SpawnLocations child (current behavior extracted)
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] Extract teleport logic from `ResetForRound()` so it only resets state (state=Alive, speed=base, captureTime=nil, joinedRound update, SetSpeed call)
+- [x] Add `TeleportAllToCloud()` method -- iterates all players, teleports each to CloudSpawn
+- [x] Add `TeleportAllToCastle()` method -- teleports to random SpawnLocations child (current behavior extracted)
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 4: Wire cloud teleport into RoundService phases
 

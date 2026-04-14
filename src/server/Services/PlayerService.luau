@@ -185,14 +185,29 @@ function PlayerService:SetRound(roundNumber: number)
 end
 
 function PlayerService:ResetForRound()
-	local spawns = self:_getSpawnLocations()
-
 	for player, data in playerData do
 		data.state = "Alive"
 		data.speed = GameConfig.BASE_PLAYER_SPEED
 		data.captureTime = nil
 		data.joinedRound = currentRound
 		self:SetSpeed(player, GameConfig.BASE_PLAYER_SPEED)
+	end
+end
+
+function PlayerService:TeleportAllToCloud()
+	local cloudSpawn = workspace:FindFirstChild("CloudSpawn")
+	if not cloudSpawn then
+		warn("[PlayerService] CloudSpawn not found in workspace")
+		return
+	end
+	for player in playerData do
+		self:_teleportToPart(player, cloudSpawn)
+	end
+end
+
+function PlayerService:TeleportAllToCastle()
+	local spawns = self:_getSpawnLocations()
+	for player in playerData do
 		self:_teleportToSpawn(player, spawns)
 	end
 end
@@ -211,10 +226,7 @@ function PlayerService:_getSpawnLocations(): { SpawnLocation }
 	return spawns
 end
 
-function PlayerService:_teleportToSpawn(player: Player, spawns: { SpawnLocation })
-	if #spawns == 0 then
-		return
-	end
+function PlayerService:_teleportToPart(player: Player, part: BasePart)
 	local character = player.Character
 	if not character then
 		return
@@ -223,8 +235,15 @@ function PlayerService:_teleportToSpawn(player: Player, spawns: { SpawnLocation 
 	if not hrp then
 		return
 	end
+	hrp.CFrame = part.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
+end
+
+function PlayerService:_teleportToSpawn(player: Player, spawns: { SpawnLocation })
+	if #spawns == 0 then
+		return
+	end
 	local spawn = spawns[math.random(#spawns)]
-	hrp.CFrame = spawn.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
+	self:_teleportToPart(player, spawn)
 end
 
 function PlayerService:AwardSurvivors()
