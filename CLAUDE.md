@@ -30,7 +30,7 @@ Services use manual dependency injection. Initialization order in `init.server.l
 3. `KissyService:Init(playerService)` — NPC AI, pathfinding, capture
 4. `RoundService:Init(remoteService, playerService, prisonService, kissyService)` — game loop
 5. `PrisonService:Init(remoteService, playerService, roundService)` — prison + door
-6. `TreadmillService:Init(playerService, roundService)` — speed training
+6. `TreadmillService:Init(remoteService, playerService, roundService)` — queue-based speed training
 
 Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and call `RoundService:Start()` + `TreadmillService:Start()`.
 

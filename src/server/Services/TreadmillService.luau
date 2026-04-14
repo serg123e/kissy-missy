@@ -1,35 +1,77 @@
--- Detects players on treadmills and increases their speed over time
+-- Server-authoritative treadmill queue system: 1 active user + FIFO queue per treadmill
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
+
+type TreadmillState = {
+	part: BasePart,
+	activeUser: Player?,
+	queue: { Player },
+	activeStartTime: number?,
+	lastInputTime: number?,
+}
 
 local TreadmillService = {}
 
+local RemoteService
 local PlayerService
 local RoundService
-local cachedTreadmills: { BasePart } = {}
 
-function TreadmillService:Init(playerService, roundService)
+local treadmills: { [string]: TreadmillState } = {}
+local playerTreadmill: { [Player]: string } = {}
+
+function TreadmillService:Init(remoteService, playerService, roundService)
+	RemoteService = remoteService
 	PlayerService = playerService
 	RoundService = roundService
 	print("[TreadmillService] Initialized")
 end
 
 function TreadmillService:Start()
-	-- Cache treadmill parts once — they are static map objects
 	local folder = workspace:FindFirstChild("Treadmills")
 	if folder then
 		for _, child in folder:GetChildren() do
 			if child:IsA("BasePart") then
-				table.insert(cachedTreadmills, child)
+				treadmills[child.Name] = {
+					part = child,
+					activeUser = nil,
+					queue = {},
+					activeStartTime = nil,
+					lastInputTime = nil,
+				}
 			end
 		end
 	end
 
-	if #cachedTreadmills == 0 then
+	local count = 0
+	for _ in treadmills do
+		count += 1
+	end
+
+	if count == 0 then
 		warn("[TreadmillService] No treadmill parts found — training disabled")
 		return
 	end
+
+	local queueJoinRemote = RemoteService:Get(RemoteEventNames.QueueJoin)
+	if queueJoinRemote then
+		queueJoinRemote.OnServerEvent:Connect(function(player, treadmillName)
+			self:OnQueueJoin(player, treadmillName)
+		end)
+	end
+
+	local queueLeaveRemote = RemoteService:Get(RemoteEventNames.QueueLeave)
+	if queueLeaveRemote then
+		queueLeaveRemote.OnServerEvent:Connect(function(player)
+			self:OnQueueLeave(player)
+		end)
+	end
+
+	Players.PlayerRemoving:Connect(function(player)
+		self:OnPlayerRemoving(player)
+	end)
 
 	task.spawn(function()
 		while true do
@@ -37,55 +79,177 @@ function TreadmillService:Start()
 			self:_tick()
 		end
 	end)
-	print("[TreadmillService] Training loop started (" .. #cachedTreadmills .. " treadmills)")
+	print("[TreadmillService] Training loop started (" .. count .. " treadmills)")
 end
 
-function TreadmillService:_tick()
-	local state = RoundService:GetState()
-	if state ~= "SafeZone" and state ~= "Hunt" then
+function TreadmillService:OnQueueJoin(player: Player, treadmillName: string)
+	if typeof(treadmillName) ~= "string" then
 		return
 	end
 
-	for _, player in PlayerService:GetAlivePlayers() do
-		if self:_isOnTreadmill(player) then
-			local data = PlayerService:GetData(player)
-			if data and data.speed < GameConfig.MAX_PLAYER_SPEED then
-				PlayerService:SetSpeed(player, data.speed + GameConfig.SPEED_PER_TREADMILL_TICK)
-			end
+	local tm = treadmills[treadmillName]
+	if not tm then
+		return
+	end
+
+	if playerTreadmill[player] then
+		return
+	end
+
+	if RoundService:GetState() ~= "SafeZone" then
+		return
+	end
+
+	local character = player.Character
+	if not character then
+		return
+	end
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	if not hrp then
+		return
+	end
+	local dist = (hrp.Position - tm.part.Position).Magnitude
+	if dist > GameConfig.QUEUE_JOIN_RADIUS then
+		return
+	end
+
+	if not tm.activeUser then
+		tm.activeUser = player
+		tm.activeStartTime = os.clock()
+		tm.lastInputTime = os.clock()
+		playerTreadmill[player] = treadmillName
+		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+			treadmillName = treadmillName,
+			position = 1,
+			isActive = true,
+			isRejected = false,
+		})
+		return
+	end
+
+	if #tm.queue >= GameConfig.MAX_QUEUE_LENGTH then
+		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+			treadmillName = treadmillName,
+			position = nil,
+			isActive = false,
+			isRejected = true,
+		})
+		return
+	end
+
+	table.insert(tm.queue, player)
+	playerTreadmill[player] = treadmillName
+	RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+		treadmillName = treadmillName,
+		position = #tm.queue + 1,
+		isActive = false,
+		isRejected = false,
+	})
+end
+
+function TreadmillService:OnQueueLeave(player: Player)
+	local treadmillName = playerTreadmill[player]
+	if not treadmillName then
+		return
+	end
+
+	local tm = treadmills[treadmillName]
+	if not tm then
+		playerTreadmill[player] = nil
+		return
+	end
+
+	if tm.activeUser == player then
+		tm.activeUser = nil
+		tm.activeStartTime = nil
+		tm.lastInputTime = nil
+		playerTreadmill[player] = nil
+		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+			treadmillName = treadmillName,
+			position = nil,
+			isActive = false,
+			isRejected = false,
+		})
+		self:_advanceQueue(treadmillName)
+	else
+		self:_removeFromQueue(tm, player)
+		playerTreadmill[player] = nil
+		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+			treadmillName = treadmillName,
+			position = nil,
+			isActive = false,
+			isRejected = false,
+		})
+		self:_notifyQueue(treadmillName)
+	end
+end
+
+function TreadmillService:OnPlayerRemoving(player: Player)
+	self:OnQueueLeave(player)
+end
+
+function TreadmillService:_advanceQueue(treadmillName: string)
+	local tm = treadmills[treadmillName]
+	if not tm or tm.activeUser then
+		return
+	end
+
+	if #tm.queue == 0 then
+		return
+	end
+
+	local nextPlayer = table.remove(tm.queue, 1)
+	tm.activeUser = nextPlayer
+	tm.activeStartTime = os.clock()
+	tm.lastInputTime = os.clock()
+	RemoteService:FireClient(nextPlayer, RemoteEventNames.QueueStateChanged, {
+		treadmillName = treadmillName,
+		position = 1,
+		isActive = true,
+		isRejected = false,
+	})
+	self:_notifyQueue(treadmillName)
+end
+
+function TreadmillService:_removeFromQueue(tm: TreadmillState, player: Player)
+	for i, p in tm.queue do
+		if p == player then
+			table.remove(tm.queue, i)
+			return
 		end
 	end
 end
 
-function TreadmillService:_isOnTreadmill(player: Player): boolean
-	local character = player.Character
-	if not character then
-		return false
-	end
-	local hrp = character:FindFirstChild("HumanoidRootPart")
-	if not hrp then
-		return false
+function TreadmillService:_notifyQueue(treadmillName: string)
+	local tm = treadmills[treadmillName]
+	if not tm then
+		return
 	end
 
-	local pos = hrp.Position
-	for _, treadmill in cachedTreadmills do
-		-- Horizontal distance (XZ plane)
-		local dx = pos.X - treadmill.Position.X
-		local dz = pos.Z - treadmill.Position.Z
-		local horizontalDist = math.sqrt(dx * dx + dz * dz)
-		local radius = math.max(treadmill.Size.X, treadmill.Size.Z) / 2 + 1
+	for i, player in tm.queue do
+		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+			treadmillName = treadmillName,
+			position = i + 1,
+			isActive = false,
+			isRejected = false,
+		})
+	end
+end
 
-		-- Vertical: -1 allows slight floor overlap; 6 covers a standing character
-		-- (~5 studs tall in Roblox) above the treadmill surface
-		local treadmillTop = treadmill.Position.Y + treadmill.Size.Y / 2
-		local dy = pos.Y - treadmillTop
-		local onTop = dy >= -1 and dy <= 6
+function TreadmillService:_tick()
+	local roundState = RoundService:GetState()
+	if roundState ~= "SafeZone" and roundState ~= "Hunt" then
+		return
+	end
 
-		if horizontalDist <= radius and onTop then
-			return true
+	for _, tm in treadmills do
+		if tm.activeUser then
+			local data = PlayerService:GetData(tm.activeUser)
+			if data and data.speed < GameConfig.MAX_PLAYER_SPEED then
+				PlayerService:SetSpeed(tm.activeUser, data.speed + GameConfig.SPEED_PER_TREADMILL_TICK)
+			end
 		end
 	end
-
-	return false
 end
 
 return TreadmillService

@@ -68,15 +68,15 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 **Files:**
 - Modify: `src/server/Services/TreadmillService.luau`
 
-- [ ] Define TreadmillState type: `{ part, activeUser, queue, activeStartTime, lastInputTime }`
-- [ ] Rewrite `Init()` to accept playerService and roundService dependencies
-- [ ] Implement `OnQueueJoin(player, treadmillName)`: find treadmill, validate player is on cloud + within QUEUE_JOIN_RADIUS, assign active or append to queue (reject if full), fire QueueStateChanged
-- [ ] Implement `OnQueueLeave(player)`: remove from queue, advance queue if needed, fire QueueStateChanged
-- [ ] Implement `OnPlayerRemoving(player)`: cleanup on disconnect
-- [ ] Implement queue advancement: when active user leaves, promote queue[1] to active, shift others
-- [ ] Wire QueueJoin and QueueLeave remote event handlers in `Start()`
-- [ ] Modify training loop: only grant speed to `activeUser` per treadmill (not proximity-based)
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] Define TreadmillState type: `{ part, activeUser, queue, activeStartTime, lastInputTime }`
+- [x] Rewrite `Init()` to accept playerService and roundService dependencies
+- [x] Implement `OnQueueJoin(player, treadmillName)`: find treadmill, validate player is on cloud + within QUEUE_JOIN_RADIUS, assign active or append to queue (reject if full), fire QueueStateChanged
+- [x] Implement `OnQueueLeave(player)`: remove from queue, advance queue if needed, fire QueueStateChanged
+- [x] Implement `OnPlayerRemoving(player)`: cleanup on disconnect
+- [x] Implement queue advancement: when active user leaves, promote queue[1] to active, shift others
+- [x] Wire QueueJoin and QueueLeave remote event handlers in `Start()`
+- [x] Modify training loop: only grant speed to `activeUser` per treadmill (not proximity-based)
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 6: Client queue join input and queue status UI
 

@@ -19,7 +19,7 @@ PlayerService:Init(RemoteService)
 KissyService:Init(PlayerService)
 RoundService:Init(RemoteService, PlayerService, PrisonService, KissyService)
 PrisonService:Init(RemoteService, PlayerService, RoundService)
-TreadmillService:Init(PlayerService, RoundService)
+TreadmillService:Init(RemoteService, PlayerService, RoundService)
 
 -- Wire up: when a player is captured, teleport them to prison
 PlayerService:SetOnCapture(function(player)
