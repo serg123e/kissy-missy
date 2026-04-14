@@ -1,0 +1,79 @@
+# Ralphex runner for Kissy Missy's Castle (Roblox / Luau project)
+# Includes: Rokit toolchain (rojo, wally, selene, stylua, lune), Node.js, Claude Code, ralphex
+
+FROM debian:bookworm-slim
+
+# Base OS deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl unzip ca-certificates \
+    git openssh-client \
+    ripgrep jq fzf \
+    make gcc \
+    gosu \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node.js 20 (claude CLI needs a recent LTS)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Roblox/Luau toolchain directly from GitHub releases
+# Versions match rokit.toml; keep in sync when tools are upgraded.
+ARG ROJO_VERSION=7.6.1
+ARG WALLY_VERSION=0.3.2
+ARG SELENE_VERSION=0.30.1
+ARG STYLUA_VERSION=2.4.1
+ARG LUNE_VERSION=0.10.4
+
+RUN set -ex; \
+    cd /tmp; \
+    mkdir -p extract; \
+    # Rojo
+    curl -fsSL "https://github.com/rojo-rbx/rojo/releases/download/v${ROJO_VERSION}/rojo-${ROJO_VERSION}-linux-x86_64.zip" -o rojo.zip; \
+    unzip -o rojo.zip -d extract; \
+    install -m 0755 extract/rojo /usr/local/bin/rojo; \
+    rm -rf extract rojo.zip; mkdir -p extract; \
+    # Wally
+    curl -fsSL "https://github.com/UpliftGames/wally/releases/download/v${WALLY_VERSION}/wally-v${WALLY_VERSION}-linux.zip" -o wally.zip; \
+    unzip -o wally.zip -d extract; \
+    install -m 0755 extract/wally /usr/local/bin/wally; \
+    rm -rf extract wally.zip; mkdir -p extract; \
+    # Selene (full, not -light)
+    curl -fsSL "https://github.com/Kampfkarren/selene/releases/download/${SELENE_VERSION}/selene-${SELENE_VERSION}-linux.zip" -o selene.zip; \
+    unzip -o selene.zip -d extract; \
+    install -m 0755 extract/selene /usr/local/bin/selene; \
+    rm -rf extract selene.zip; mkdir -p extract; \
+    # StyLua
+    curl -fsSL "https://github.com/JohnnyMorganz/StyLua/releases/download/v${STYLUA_VERSION}/stylua-linux-x86_64.zip" -o stylua.zip; \
+    unzip -o stylua.zip -d extract; \
+    install -m 0755 extract/stylua /usr/local/bin/stylua; \
+    rm -rf extract stylua.zip; mkdir -p extract; \
+    # Lune
+    curl -fsSL "https://github.com/lune-org/lune/releases/download/v${LUNE_VERSION}/lune-${LUNE_VERSION}-linux-x86_64.zip" -o lune.zip; \
+    unzip -o lune.zip -d extract; \
+    install -m 0755 extract/lune /usr/local/bin/lune; \
+    rm -rf extract lune.zip; \
+    # Sanity check
+    rojo --version && wally --version && selene --version && stylua --version && lune --version
+
+# Install Claude Code CLI
+ENV USE_BUILTIN_RIPGREP=0
+ENV RALPHEX_DOCKER=1
+RUN npm install -g @anthropic-ai/claude-code && \
+    command -v claude >/dev/null || { echo "error: claude CLI not found"; exit 1; }
+
+# Copy ralphex binary and init script from the official image
+COPY --from=ghcr.io/umputun/ralphex:latest /srv/ralphex /usr/local/bin/ralphex
+COPY --from=ghcr.io/umputun/ralphex:latest /srv/init.sh /srv/init.sh
+RUN chmod +x /usr/local/bin/ralphex /srv/init.sh
+
+# App user (UID will be adjusted at runtime by entrypoint to match host user)
+RUN useradd -m -s /bin/bash -u 1000 app
+
+WORKDIR /workspace
+
+COPY scripts/ralphex-entrypoint.sh /srv/entrypoint.sh
+RUN chmod +x /srv/entrypoint.sh
+
+ENTRYPOINT ["/srv/entrypoint.sh"]
+CMD ["ralphex"]
