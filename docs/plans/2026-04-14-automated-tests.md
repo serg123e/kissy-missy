@@ -113,16 +113,16 @@ The goal is **regression protection for logic bugs that are easy to introduce an
 - Create: `tests/time_format_test.luau`
 - Modify: `src/client/UI/HudController.luau`
 
-- [ ] Extract `_formatTime` from `HudController` into `TimeFormat.format(seconds) -> string`.
-- [ ] `HudController._formatTime` becomes a thin wrapper (or is inlined).
-- [ ] Tests:
+- [x] Extract `_formatTime` from `HudController` into `TimeFormat.format(seconds) -> string`.
+- [x] `HudController._formatTime` becomes a thin wrapper (or is inlined).
+- [x] Tests:
   - `format(0)` → `"0:00"`
   - `format(5)` → `"0:05"`
   - `format(60)` → `"1:00"`
   - `format(125)` → `"2:05"`
   - `format(-1)` → `"0:00"` (or document current behavior)
-- [ ] `_stateDisplay` is trivial enough to skip unless it grows.
-- [ ] Run full gate: `stylua src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`.
+- [x] `_stateDisplay` is trivial enough to skip unless it grows.
+- [x] Run full gate: `stylua src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`.
 
 ### Task 6: Config integrity tests
 

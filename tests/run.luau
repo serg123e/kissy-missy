@@ -7,6 +7,7 @@ require("./runner_self_test")
 require("./queue_logic_test")
 require("./eligibility_test")
 require("./player_state_test")
+require("./time_format_test")
 
 local ok = runner.run()
 if not ok then

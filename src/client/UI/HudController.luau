@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
+local TimeFormat = require(ReplicatedStorage.Shared.Logic.TimeFormat)
 
 local HudController = {}
 
@@ -316,9 +317,7 @@ function HudController:_stateDisplay(state: string): string
 end
 
 function HudController:_formatTime(seconds: number): string
-	local m = math.floor(seconds / 60)
-	local s = seconds % 60
-	return string.format("%d:%02d", m, s)
+	return TimeFormat.format(seconds)
 end
 
 function HudController:_notify(text: string)
