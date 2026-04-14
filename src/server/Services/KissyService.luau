@@ -12,6 +12,7 @@ local isHunting = false
 local huntThread: thread? = nil
 
 local PlayerService
+local RoundService
 
 -- Pathfinding: recompute interval and state
 local PATH_RECOMPUTE_INTERVAL = 1 -- seconds between path recomputation
@@ -25,6 +26,10 @@ local RANDOM_RETARGET_CHANCE = 0.1 -- 10% chance per retarget to pick a random p
 function KissyService:Init(playerService)
 	PlayerService = playerService
 	print("[KissyService] Initialized")
+end
+
+function KissyService:SetRoundService(roundService)
+	RoundService = roundService
 end
 
 -- Called at the start of SafeZone phase.
@@ -105,6 +110,10 @@ end
 -- AI loop
 
 function KissyService:_huntTick()
+	if RoundService and RoundService:GetState() ~= "Hunt" then
+		return
+	end
+
 	local model = kissyModel
 	if not model then
 		return

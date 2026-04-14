@@ -21,8 +21,9 @@ RoundService:Init(RemoteService, PlayerService, PrisonService, KissyService)
 PrisonService:Init(RemoteService, PlayerService, RoundService)
 TreadmillService:Init(RemoteService, PlayerService, RoundService)
 
--- Late-inject TreadmillService into RoundService (avoids circular init dependency)
+-- Late-inject dependencies (avoids circular init dependency)
 RoundService:SetTreadmillService(TreadmillService)
+KissyService:SetRoundService(RoundService)
 
 -- Wire up: when a player is captured, teleport them to prison
 PlayerService:SetOnCapture(function(player)

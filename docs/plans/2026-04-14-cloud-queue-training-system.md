@@ -141,10 +141,10 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 - Modify: `src/server/Services/KissyService.luau`
 - Modify: `src/server/init.server.luau`
 
-- [ ] Add `SetRoundService(roundService)` method to KissyService for late-inject (avoids circular dep)
-- [ ] In `_huntTick()`: check `RoundService:GetState()`; if not "Hunt", return early (no chase, no catch)
-- [ ] Update init.server.luau: after both KissyService and RoundService are inited, call `KissyService:SetRoundService(RoundService)`
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] Add `SetRoundService(roundService)` method to KissyService for late-inject (avoids circular dep)
+- [x] In `_huntTick()`: check `RoundService:GetState()`; if not "Hunt", return early (no chase, no catch)
+- [x] Update init.server.luau: after both KissyService and RoundService are inited, call `KissyService:SetRoundService(RoundService)`
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 11: Eager win check and coin eligibility snapshot
 
