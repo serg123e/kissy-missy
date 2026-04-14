@@ -40,7 +40,8 @@ Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and 
 - `PrisonDoor` — Part representing the prison door; toggled transparent/collidable
 - `KissySpawn` — Part inside the castle; Kissy Missy spawns here each round
 - `Treadmills` — Folder with Part children; players stand on them to train speed
-- `SpawnLocations` — Folder with SpawnLocation children; players teleport here at round start
+- `SpawnLocations` — Folder with SpawnLocation children; players teleport here at Hunt start
+- `CloudSpawn` — Part on the cloud platform; all players teleport here at Safe Zone start
 
 ## Required ServerStorage Assets
 - `KissyMissy` — Model with Humanoid + HumanoidRootPart; the NPC template cloned each round
@@ -56,11 +57,12 @@ Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and 
 - Windows VM: run Roblox Studio with Rojo plugin connected to `rojo serve`
 - Build place file: `rojo build -o game.rbxl`
 
-## Key Timing Values
-- `SAFE_ZONE_DURATION = 15s` — players can train on treadmills
-- `KISSY_SPAWN_DELAY = 10s` — Kissy exits castle 10s into SafeZone (last 5s overlap with hunting)
-- `ROUND_DURATION = 300s` (5 min) — hunt phase
-- `ROUND_END_DURATION = 5s` — results display
+## Game Constants
+All timing, speed, radius, and coin values live in `src/shared/Config/GameConfig.luau` — the single source of truth. Do not duplicate values in docs; reference the file.
+
+## Specs
+- [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) — gameplay design document
+- [docs/CLOUD_QUEUE_SPEC.md](docs/CLOUD_QUEUE_SPEC.md) — task spec for the cloud/queue training system (next implementation work)
 
 ## Code Style
 - Tabs for indentation
