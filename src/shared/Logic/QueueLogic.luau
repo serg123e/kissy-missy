@@ -1,3 +1,4 @@
+--!strict
 local QueueLogic = {}
 
 type QueueState = {

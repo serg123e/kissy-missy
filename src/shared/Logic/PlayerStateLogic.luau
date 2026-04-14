@@ -1,3 +1,4 @@
+--!strict
 local PlayerStateLogic = {}
 
 function PlayerStateLogic.canCapture(data: { state: string }?): boolean

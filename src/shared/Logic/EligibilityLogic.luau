@@ -1,3 +1,4 @@
+--!strict
 local EligibilityLogic = {}
 
 function EligibilityLogic.isEligibleForSurvivalReward(

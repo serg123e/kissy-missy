@@ -1,3 +1,4 @@
+--!strict
 local TimeFormat = {}
 
 function TimeFormat.format(seconds: number): string
