@@ -17,7 +17,7 @@ src/
   server/          → ServerScriptService (server-only code)
     Services/      → Game services (round manager, prison, AI, treadmills)
   client/          → StarterPlayerScripts (client-only code)
-    Controllers/   → Client controllers (input)
+    Controllers/   → Client controllers (input, visual smoothing)
     UI/            → GUI controllers (HUD)
   shared/          → ReplicatedStorage (shared between server & client)
     Config/        → Game constants and configuration
@@ -71,6 +71,7 @@ All timing, speed, radius, and coin values live in `src/shared/Config/GameConfig
 ## Specs
 - [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) — gameplay design document
 - [docs/CLOUD_QUEUE_SPEC.md](docs/CLOUD_QUEUE_SPEC.md) — cloud/queue training system spec (implemented)
+- [docs/KISSY_AI_POLISH_SPEC.md](docs/KISSY_AI_POLISH_SPEC.md) — Kissy AI pathfinding and smoothing polish spec (implemented)
 
 ## Testing
 

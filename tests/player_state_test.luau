@@ -5,7 +5,6 @@ local describe = runner.describe
 local it = runner.it
 local assertTrue = runner.assertTrue
 local assertFalse = runner.assertFalse
-local assertEqual = runner.assertEqual
 
 describe("PlayerStateLogic", function()
 	describe("canCapture", function()
@@ -33,22 +32,6 @@ describe("PlayerStateLogic", function()
 
 		it("returns false for nil data", function()
 			assertFalse(PlayerStateLogic.canFree(nil))
-		end)
-	end)
-
-	describe("countAlive", function()
-		it("returns 0 for empty map", function()
-			assertEqual(PlayerStateLogic.countAlive({}), 0)
-		end)
-
-		it("counts only Alive in mixed states", function()
-			local map = {
-				a = { state = "Alive" },
-				b = { state = "Captured" },
-				c = { state = "Alive" },
-				d = { state = "Captured" },
-			}
-			assertEqual(PlayerStateLogic.countAlive(map), 2)
 		end)
 	end)
 

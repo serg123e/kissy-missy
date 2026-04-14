@@ -16,6 +16,7 @@ type KissyState = {
 }
 
 local currentKissy: KissyState? = nil
+local isLerping = false
 
 local function clearKissy()
 	if currentKissy then
@@ -32,7 +33,7 @@ local function onKissyAdded(model: Instance)
 	clearKissy()
 
 	local hrp = model:WaitForChild("HumanoidRootPart", 5) :: BasePart?
-	if not hrp then
+	if not hrp or model.Parent == nil then
 		return
 	end
 
@@ -41,6 +42,9 @@ local function onKissyAdded(model: Instance)
 		hrp = hrp,
 		target = hrp.CFrame,
 		cframeConn = hrp:GetPropertyChangedSignal("CFrame"):Connect(function()
+			if isLerping then
+				return
+			end
 			if currentKissy and currentKissy.hrp == hrp then
 				currentKissy.target = hrp.CFrame
 			end
@@ -73,12 +77,16 @@ function KissySmoothingController:Init()
 		local target = currentKissy.target
 
 		if (hrp.Position - target.Position).Magnitude >= SNAP_THRESHOLD then
+			isLerping = true
 			hrp.CFrame = target
+			isLerping = false
 			return
 		end
 
 		local alpha = 1 - math.exp(-dt * GameConfig.KISSY_VISUAL_LERP_RATE)
+		isLerping = true
 		hrp.CFrame = hrp.CFrame:Lerp(target, alpha)
+		isLerping = false
 	end)
 
 	print("[KissySmoothingController] Initialized")

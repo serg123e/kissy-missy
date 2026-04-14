@@ -102,6 +102,7 @@ Placeholder objects are already created by Rojo — reposition them in your cast
 | `CloudSpawn` | On the cloud platform | All players teleport here at Safe Zone start |
 | `CloudPlatform` | Sky elevation | Platform players stand on during Safe Zone |
 | `CloudWalls/` (Folder) | Around cloud edge | 4 invisible walls preventing players from falling off |
+| `PrisonZone` | Enclosing the prison interior | Invisible volume with PathfindingModifier; prevents Kissy from entering prison |
 
 ### ServerStorage (create manually)
 
@@ -125,6 +126,7 @@ Create a **Model** named `KissyMissy`:
 - [ ] Position CloudSpawn on the cloud platform
 - [ ] Position CloudPlatform at sky elevation
 - [ ] Position 4 CloudWalls around the cloud platform edge
+- [ ] Position and size PrisonZone to enclose the prison interior
 - [ ] Create the KissyMissy model in ServerStorage
 - [ ] Optional: add 3-4 treehouses as hiding spots
 
@@ -142,7 +144,8 @@ src/
       TreadmillService — speed training on treadmill parts
   client/              -> StarterPlayerScripts
     Controllers/
-      InputController  — Y key fires DoorInteract remote
+      InputController            — Y key fires DoorInteract remote
+      KissySmoothingController  — client-side visual smoothing for Kissy NPC
     UI/
       HudController    — game state, timer, coins, door prompt, notifications
   shared/              -> ReplicatedStorage

@@ -41,18 +41,4 @@ function QueueLogic.remove(state: QueueState, player: any): (string, any?)
 	return "notPresent", nil
 end
 
-function QueueLogic.positionOf(state: QueueState, player: any): number?
-	if state.activeUser == player then
-		return 1
-	end
-
-	for i, p in state.queue do
-		if p == player then
-			return i + 1
-		end
-	end
-
-	return nil
-end
-
 return QueueLogic
