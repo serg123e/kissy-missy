@@ -130,15 +130,15 @@ The goal is **regression protection for logic bugs that are easy to introduce an
 - Create: `tests/config_test.luau`
 - Create: `tests/lib/roblox_stub.luau` (minimal `Enum.KeyCode` stub)
 
-- [ ] `roblox_stub.luau` defines just enough `Enum` for `GameConfig` to load under Lune: `Enum = { KeyCode = setmetatable({}, { __index = function(_, k) return { Name = k } end }) }`. Applied globally before `require("../src/shared/Config/GameConfig")`. Note: `GameConfig.luau` currently uses `Enum.KeyCode.Y` and `Enum.KeyCode.E`; stub must cover both.
-- [ ] Tests:
+- [x] `roblox_stub.luau` defines just enough `Enum` for `GameConfig` to load under Lune: `Enum = { KeyCode = setmetatable({}, { __index = function(_, k) return { Name = k } end }) }`. Applied globally before `require("../src/shared/Config/GameConfig")`. Note: `GameConfig.luau` currently uses `Enum.KeyCode.Y` and `Enum.KeyCode.E`; stub must cover both.
+- [x] Tests:
   - `MAX_PLAYER_SPEED > BASE_PLAYER_SPEED`
   - `KISSY_SPEED > MAX_PLAYER_SPEED` (Kissy must outrun maxed players)
   - `KISSY_CATCH_RADIUS < PRISON_DOOR_INTERACT_RADIUS` (sanity: door area bigger than catch)
   - `MAX_QUEUE_LENGTH >= 1`, `AFK_KICK_TIMEOUT > 0`, `QUEUE_JOIN_RADIUS > 0`
   - `RemoteEvents` table has no duplicate values (all string names unique)
   - All `RemoteEvents` values are strings
-- [ ] Run full gate: `stylua src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`.
+- [x] Run full gate: `stylua src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`.
 
 ### Task 7: CI-friendly script and docs
 
