@@ -25,6 +25,7 @@ local promptLabel: TextLabel
 local notifLabel: TextLabel
 local queueStatusLabel: TextLabel
 local queueStatusFrame: Frame
+local leaveQueueButton: TextButton
 
 local notifThread: thread? = nil
 
@@ -96,13 +97,16 @@ function HudController:OnQueueStateChanged(data: {
 
 	if data.position == nil then
 		queueStatusFrame.Visible = false
+		leaveQueueButton.Visible = false
 		return
 	end
 
 	if data.isActive then
 		queueStatusLabel.Text = "Active on " .. data.treadmillName
+		leaveQueueButton.Visible = false
 	else
 		queueStatusLabel.Text = "Queue #" .. tostring(data.position - 1) .. " for " .. data.treadmillName
+		leaveQueueButton.Visible = true
 	end
 	queueStatusFrame.Visible = true
 end
@@ -200,6 +204,30 @@ function HudController:_createUI()
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "",
 	})
+
+	leaveQueueButton = Instance.new("TextButton")
+	leaveQueueButton.Size = UDim2.fromOffset(140, 36)
+	leaveQueueButton.Position = UDim2.new(0, 10, 1, -92)
+	leaveQueueButton.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+	leaveQueueButton.BackgroundTransparency = 0.3
+	leaveQueueButton.BorderSizePixel = 0
+	leaveQueueButton.Font = Enum.Font.GothamBold
+	leaveQueueButton.TextSize = 16
+	leaveQueueButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	leaveQueueButton.Text = "Leave Queue"
+	leaveQueueButton.Visible = false
+	leaveQueueButton.Parent = gui
+
+	local leaveCorner = Instance.new("UICorner")
+	leaveCorner.CornerRadius = UDim.new(0, 8)
+	leaveCorner.Parent = leaveQueueButton
+
+	local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
+	local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
+	local queueLeaveRemote = remotesFolder:WaitForChild(RemoteEventNames.QueueLeave)
+	leaveQueueButton.Activated:Connect(function()
+		queueLeaveRemote:FireServer()
+	end)
 end
 
 function HudController:_panel(parent: Instance, size: UDim2, position: UDim2): Frame

@@ -273,11 +273,32 @@ function TreadmillService:_tick()
 		return
 	end
 
-	for _, tm in treadmills do
+	for treadmillName, tm in treadmills do
 		if tm.activeUser then
-			local data = PlayerService:GetData(tm.activeUser)
-			if data and data.speed < GameConfig.MAX_PLAYER_SPEED then
-				PlayerService:SetSpeed(tm.activeUser, data.speed + GameConfig.SPEED_PER_TREADMILL_TICK)
+			local character = tm.activeUser.Character
+			local humanoid = character and character:FindFirstChild("Humanoid")
+			if humanoid and humanoid.MoveDirection.Magnitude > 0 then
+				tm.lastInputTime = os.clock()
+			end
+
+			if tm.lastInputTime and os.clock() - tm.lastInputTime > GameConfig.AFK_KICK_TIMEOUT then
+				local player = tm.activeUser
+				tm.activeUser = nil
+				tm.activeStartTime = nil
+				tm.lastInputTime = nil
+				playerTreadmill[player] = nil
+				RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+					treadmillName = treadmillName,
+					position = nil,
+					isActive = false,
+					isRejected = false,
+				})
+				self:_advanceQueue(treadmillName)
+			else
+				local data = PlayerService:GetData(tm.activeUser)
+				if data and data.speed < GameConfig.MAX_PLAYER_SPEED then
+					PlayerService:SetSpeed(tm.activeUser, data.speed + GameConfig.SPEED_PER_TREADMILL_TICK)
+				end
 			end
 		end
 	end

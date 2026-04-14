@@ -114,13 +114,13 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 - Modify: `src/server/Services/TreadmillService.luau`
 - Modify: `src/client/UI/HudController.luau`
 
-- [ ] TreadmillService: in training loop, poll activeUser's humanoid.MoveDirection.Magnitude; update lastInputTime if > 0
-- [ ] TreadmillService: if os.clock() - lastInputTime > AFK_KICK_TIMEOUT, evict active user and advance queue
-- [ ] HudController: when QueueStateChanged shows position >= 2, display "Leave Queue" button
-- [ ] HudController: on button click, fire QueueLeave remote
-- [ ] HudController: hide button when position becomes nil or 1
-- [ ] TreadmillService: handle QueueLeave remote -- remove player, unlock movement, fire QueueStateChanged
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] TreadmillService: in training loop, poll activeUser's humanoid.MoveDirection.Magnitude; update lastInputTime if > 0
+- [x] TreadmillService: if os.clock() - lastInputTime > AFK_KICK_TIMEOUT, evict active user and advance queue
+- [x] HudController: when QueueStateChanged shows position >= 2, display "Leave Queue" button
+- [x] HudController: on button click, fire QueueLeave remote
+- [x] HudController: hide button when position becomes nil or 1
+- [x] TreadmillService: handle QueueLeave remote -- remove player, unlock movement, fire QueueStateChanged
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 9: Safe Zone end synchronous queue release
 
