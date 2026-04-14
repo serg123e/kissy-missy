@@ -85,12 +85,12 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 - Modify: `src/client/UI/HudController.luau`
 - Modify: `src/client/init.client.luau`
 
-- [ ] InputController: listen for E key (QUEUE_JOIN_KEY), find nearest treadmill within QUEUE_JOIN_RADIUS, fire QueueJoin remote with treadmill name
-- [ ] HudController: handle QueueStateChanged remote -- display "Active on T1" or "Queue #3 for T2" status label
-- [ ] HudController: show "Queue full -- try another treadmill" notification (3s) when isRejected=true
-- [ ] HudController: clear queue status label when player leaves queue (state cleared)
-- [ ] Wire QueueStateChanged listener in init.client.luau
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] InputController: listen for E key (QUEUE_JOIN_KEY), find nearest treadmill within QUEUE_JOIN_RADIUS, fire QueueJoin remote with treadmill name
+- [x] HudController: handle QueueStateChanged remote -- display "Active on T1" or "Queue #3 for T2" status label
+- [x] HudController: show "Queue full -- try another treadmill" notification (3s) when isRejected=true
+- [x] HudController: clear queue status label when player leaves queue (state cleared)
+- [x] Wire QueueStateChanged listener in init.client.luau
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 7: Movement lock system and queue positioning
 

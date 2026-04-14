@@ -41,4 +41,8 @@ listen(RemoteEventNames.DoorStateChanged, function(isOpen)
 	HudController:OnDoorStateChanged(isOpen)
 end)
 
+listen(RemoteEventNames.QueueStateChanged, function(data)
+	HudController:OnQueueStateChanged(data)
+end)
+
 print("[Client] Kissy Missy's Castle loaded")

@@ -23,6 +23,8 @@ local timerLabel: TextLabel
 local coinsLabel: TextLabel
 local promptLabel: TextLabel
 local notifLabel: TextLabel
+local queueStatusLabel: TextLabel
+local queueStatusFrame: Frame
 
 local notifThread: thread? = nil
 
@@ -79,6 +81,30 @@ function HudController:OnDoorStateChanged(isOpen: boolean)
 	if isOpen then
 		self:_notify("Prison door opened!")
 	end
+end
+
+function HudController:OnQueueStateChanged(data: {
+	treadmillName: string,
+	position: number?,
+	isActive: boolean,
+	isRejected: boolean,
+})
+	if data.isRejected then
+		self:_notify("Queue full — try another treadmill")
+		return
+	end
+
+	if data.position == nil then
+		queueStatusFrame.Visible = false
+		return
+	end
+
+	if data.isActive then
+		queueStatusLabel.Text = "Active on " .. data.treadmillName
+	else
+		queueStatusLabel.Text = "Queue #" .. tostring(data.position - 1) .. " for " .. data.treadmillName
+	end
+	queueStatusFrame.Visible = true
 end
 
 -- Private: UI creation
@@ -160,6 +186,19 @@ function HudController:_createUI()
 		TextColor3 = Color3.fromRGB(255, 100, 100),
 		Text = "",
 		Visible = false,
+	})
+
+	-- Bottom left: queue status
+	queueStatusFrame = self:_panel(gui, UDim2.fromOffset(260, 36), UDim2.new(0, 10, 1, -50))
+	queueStatusFrame.Visible = false
+
+	queueStatusLabel = self:_label(queueStatusFrame, {
+		Size = UDim2.new(1, -16, 1, 0),
+		Position = UDim2.fromOffset(8, 0),
+		TextSize = 16,
+		TextColor3 = Color3.fromRGB(120, 220, 255),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "",
 	})
 end
 
