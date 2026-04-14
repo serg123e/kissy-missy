@@ -129,11 +129,11 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 - Modify: `src/server/Services/RoundService.luau`
 - Modify: `src/server/init.server.luau`
 
-- [ ] TreadmillService: implement `ResetAllQueues()` -- clear all active users, unlock all queued players, fire QueueStateChanged to clear client UI
-- [ ] RoundService: add TreadmillService dependency (inject via Init or late-inject)
-- [ ] RoundService: in `_runHunt`, before TeleportAllToCastle, call `TreadmillService:ResetAllQueues()`
-- [ ] Update init.server.luau wiring to pass TreadmillService to RoundService (or use setter pattern)
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] TreadmillService: implement `ResetAllQueues()` -- clear all active users, unlock all queued players, fire QueueStateChanged to clear client UI
+- [x] RoundService: add TreadmillService dependency (inject via Init or late-inject)
+- [x] RoundService: in `_runHunt`, before TeleportAllToCastle, call `TreadmillService:ResetAllQueues()`
+- [x] Update init.server.luau wiring to pass TreadmillService to RoundService (or use setter pattern)
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 10: Kissy phase-aware AI behavior
 

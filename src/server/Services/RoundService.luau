@@ -15,6 +15,7 @@ local RemoteService
 local PlayerService
 local PrisonService
 local KissyService
+local TreadmillService
 
 function RoundService:Init(remoteService, playerService, prisonService, kissyService)
 	RemoteService = remoteService
@@ -22,6 +23,10 @@ function RoundService:Init(remoteService, playerService, prisonService, kissySer
 	PrisonService = prisonService
 	KissyService = kissyService
 	print("[RoundService] Initialized")
+end
+
+function RoundService:SetTreadmillService(treadmillService)
+	TreadmillService = treadmillService
 end
 
 function RoundService:Start()
@@ -102,6 +107,7 @@ end
 -- Phase: Hunt (Kissy chases players)
 -- Kissy Missy is already hunting (activated during SafeZone with KISSY_SPAWN_DELAY).
 function RoundService:_runHunt()
+	TreadmillService:ResetAllQueues()
 	PlayerService:TeleportAllToCastle()
 	self:_setState("Hunt", GameConfig.ROUND_DURATION)
 

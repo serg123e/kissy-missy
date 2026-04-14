@@ -267,6 +267,37 @@ function TreadmillService:_positionQueuedPlayers(treadmillName: string)
 	end
 end
 
+function TreadmillService:ResetAllQueues()
+	for treadmillName, tm in treadmills do
+		if tm.activeUser then
+			local player = tm.activeUser
+			tm.activeUser = nil
+			tm.activeStartTime = nil
+			tm.lastInputTime = nil
+			playerTreadmill[player] = nil
+			RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+				treadmillName = treadmillName,
+				position = nil,
+				isActive = false,
+				isRejected = false,
+			})
+		end
+
+		for _, player in tm.queue do
+			PlayerService:UnlockMovement(player)
+			playerTreadmill[player] = nil
+			RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+				treadmillName = treadmillName,
+				position = nil,
+				isActive = false,
+				isRejected = false,
+			})
+		end
+		tm.queue = {}
+	end
+	print("[TreadmillService] All queues reset")
+end
+
 function TreadmillService:_tick()
 	local roundState = RoundService:GetState()
 	if roundState ~= "SafeZone" and roundState ~= "Hunt" then
