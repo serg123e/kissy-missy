@@ -49,6 +49,7 @@ Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and 
 - `CloudSpawn` — Part on the cloud platform; all players teleport here at Safe Zone start
 - `CloudPlatform` — Large Part at cloud elevation; the platform players stand on during Safe Zone
 - `CloudWalls` — Folder with 4 invisible wall Parts around the cloud platform edge; prevents players from falling off
+- `PrisonZone` — Invisible Part enclosing the prison interior; has a PathfindingModifier child (Label="PrisonInterior") so Kissy's pathfinding treats the prison as impassable
 
 ## Required ServerStorage Assets
 - `KissyMissy` — Model with Humanoid + HumanoidRootPart; the NPC template cloned each round

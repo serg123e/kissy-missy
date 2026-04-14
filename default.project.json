@@ -139,6 +139,22 @@
           }
         }
       },
+      "PrisonZone": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [20, 15, 20],
+          "Position": [0, 8, 0],
+          "Anchored": true,
+          "CanCollide": false,
+          "Transparency": 1
+        },
+        "PathfindingModifier": {
+          "$className": "PathfindingModifier",
+          "$properties": {
+            "Label": "PrisonInterior"
+          }
+        }
+      },
       "KissySpawn": {
         "$className": "Part",
         "$properties": {
