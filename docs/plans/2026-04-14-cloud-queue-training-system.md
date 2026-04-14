@@ -58,10 +58,10 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 **Files:**
 - Modify: `src/server/Services/RoundService.luau`
 
-- [ ] In `_runSafeZone`: after `ResetForRound()`, call `PlayerService:TeleportAllToCloud()`
-- [ ] In `_runHunt`: before setting state to Hunt, call `PlayerService:TeleportAllToCastle()`
-- [ ] Verify round flow order: PrisonService:Reset -> SetRound -> ResetForRound -> TeleportAllToCloud -> KissyService:Activate -> countdown
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] In `_runSafeZone`: after `ResetForRound()`, call `PlayerService:TeleportAllToCloud()`
+- [x] In `_runHunt`: before setting state to Hunt, call `PlayerService:TeleportAllToCastle()`
+- [x] Verify round flow order: PrisonService:Reset -> SetRound -> ResetForRound -> TeleportAllToCloud -> KissyService:Activate -> countdown
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 5: Rewrite TreadmillService with occupancy and FIFO queue
 

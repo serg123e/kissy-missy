@@ -93,6 +93,7 @@ function RoundService:_runSafeZone()
 	PrisonService:Reset() -- teleport captured players out first
 	PlayerService:SetRound(roundNumber)
 	PlayerService:ResetForRound()
+	PlayerService:TeleportAllToCloud()
 	KissyService:Activate() -- spawn Kissy in castle, starts hunting after KISSY_SPAWN_DELAY
 	self:_setState("SafeZone", GameConfig.SAFE_ZONE_DURATION)
 	self:_countdown(GameConfig.SAFE_ZONE_DURATION)
@@ -101,6 +102,7 @@ end
 -- Phase: Hunt (Kissy chases players)
 -- Kissy Missy is already hunting (activated during SafeZone with KISSY_SPAWN_DELAY).
 function RoundService:_runHunt()
+	PlayerService:TeleportAllToCastle()
 	self:_setState("Hunt", GameConfig.ROUND_DURATION)
 
 	local kissyWon = self:_countdown(GameConfig.ROUND_DURATION, function()
