@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
 local EligibilityLogic = require(ReplicatedStorage.Shared.Logic.EligibilityLogic)
+local PlayerStateLogic = require(ReplicatedStorage.Shared.Logic.PlayerStateLogic)
 
 local PlayerService = {}
 
@@ -116,7 +117,7 @@ end
 
 function PlayerService:CapturePlayer(player: Player)
 	local data = playerData[player]
-	if not data or data.state ~= "Alive" then
+	if not PlayerStateLogic.canCapture(data) then
 		return
 	end
 
@@ -145,7 +146,7 @@ end
 
 function PlayerService:FreePlayer(player: Player)
 	local data = playerData[player]
-	if not data or data.state ~= "Captured" then
+	if not PlayerStateLogic.canFree(data) then
 		return
 	end
 

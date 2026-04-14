@@ -94,17 +94,17 @@ The goal is **regression protection for logic bugs that are easy to introduce an
 - Create: `tests/player_state_test.luau`
 - Modify: `src/server/Services/PlayerService.luau`
 
-- [ ] `PlayerStateLogic.luau` exports:
+- [x] `PlayerStateLogic.luau` exports:
   - `canCapture(data) -> boolean` — true iff `data.state == "Alive"`.
   - `canFree(data) -> boolean` — true iff `data.state == "Captured"`.
   - `countAlive(map) -> number`
-- [ ] `PlayerService:CapturePlayer` / `:FreePlayer` use these guards instead of inline checks.
-- [ ] Tests:
+- [x] `PlayerService:CapturePlayer` / `:FreePlayer` use these guards instead of inline checks.
+- [x] Tests:
   - canCapture for Alive=true, Captured=false, nil data=false
   - canFree for Captured=true, Alive=false
   - countAlive mixed states counts only Alive
   - double-capture rejected (second call with Captured state returns false)
-- [ ] Run full gate: `stylua src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`.
+- [x] Run full gate: `stylua src/ tests/ && selene src/ && lune run tests/run.luau && rojo build -o /tmp/test.rbxl`.
 
 ### Task 5: HUD formatter tests
 
