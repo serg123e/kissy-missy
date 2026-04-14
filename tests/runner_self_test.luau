@@ -1,0 +1,36 @@
+-- Self-test for the runner's assertion helpers. Keeps the suite honest —
+-- if these ever fail, the runner itself is broken, not the code under test.
+local runner = require("./lib/runner")
+
+runner.describe("runner", function()
+	runner.it("assertEqual passes on equal values", function()
+		runner.assertEqual(1, 1)
+		runner.assertEqual("a", "a")
+		runner.assertEqual(nil, nil)
+	end)
+
+	runner.it("assertEqual fails on mismatch", function()
+		local ok = pcall(function()
+			runner.assertEqual(1, 2)
+		end)
+		runner.assertFalse(ok, "expected assertEqual to throw")
+	end)
+
+	runner.it("assertTrue passes on truthy, fails on falsy", function()
+		runner.assertTrue(true)
+		runner.assertTrue(1)
+		runner.assertTrue("x")
+		local ok = pcall(function()
+			runner.assertTrue(false)
+		end)
+		runner.assertFalse(ok, "expected assertTrue(false) to throw")
+	end)
+
+	runner.it("assertNil passes on nil, fails on non-nil", function()
+		runner.assertNil(nil)
+		local ok = pcall(function()
+			runner.assertNil(0)
+		end)
+		runner.assertFalse(ok, "expected assertNil(0) to throw")
+	end)
+end)

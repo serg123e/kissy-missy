@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local RemoteEventNames = require(ReplicatedStorage.Shared.Config.RemoteEvents)
+local QueueLogic = require(ReplicatedStorage.Shared.Logic.QueueLogic)
 
 type TreadmillState = {
 	part: BasePart,
@@ -111,8 +112,9 @@ function TreadmillService:OnQueueJoin(player: Player, treadmillName: string)
 		return
 	end
 
-	if not tm.activeUser then
-		tm.activeUser = player
+	local result, pos = QueueLogic.tryAssign(tm, player, GameConfig.MAX_QUEUE_LENGTH)
+
+	if result == "active" then
 		tm.lastInputTime = os.clock()
 		playerTreadmill[player] = treadmillName
 		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
@@ -121,29 +123,24 @@ function TreadmillService:OnQueueJoin(player: Player, treadmillName: string)
 			isActive = true,
 			isRejected = false,
 		})
-		return
-	end
-
-	if #tm.queue >= GameConfig.MAX_QUEUE_LENGTH then
+	elseif result == "rejected" then
 		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
 			treadmillName = treadmillName,
 			position = nil,
 			isActive = false,
 			isRejected = true,
 		})
-		return
+	else
+		playerTreadmill[player] = treadmillName
+		PlayerService:LockMovement(player)
+		self:_positionQueuedPlayers(treadmillName)
+		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+			treadmillName = treadmillName,
+			position = pos,
+			isActive = false,
+			isRejected = false,
+		})
 	end
-
-	table.insert(tm.queue, player)
-	playerTreadmill[player] = treadmillName
-	PlayerService:LockMovement(player)
-	self:_positionQueuedPlayers(treadmillName)
-	RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
-		treadmillName = treadmillName,
-		position = #tm.queue + 1,
-		isActive = false,
-		isRejected = false,
-	})
 end
 
 function TreadmillService:OnQueueLeave(player: Player)
@@ -158,27 +155,26 @@ function TreadmillService:OnQueueLeave(player: Player)
 		return
 	end
 
-	if tm.activeUser == player then
-		tm.activeUser = nil
+	local result, promoted = QueueLogic.remove(tm, player)
+	if result == "notPresent" then
+		return
+	end
+
+	playerTreadmill[player] = nil
+	RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
+		treadmillName = treadmillName,
+		position = nil,
+		isActive = false,
+		isRejected = false,
+	})
+
+	if result == "wasActive" then
 		tm.lastInputTime = nil
-		playerTreadmill[player] = nil
-		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
-			treadmillName = treadmillName,
-			position = nil,
-			isActive = false,
-			isRejected = false,
-		})
-		self:_advanceQueue(treadmillName)
+		if promoted then
+			self:_settlePromotion(treadmillName, promoted)
+		end
 	else
-		self:_removeFromQueue(tm, player)
-		playerTreadmill[player] = nil
 		PlayerService:UnlockMovement(player)
-		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
-			treadmillName = treadmillName,
-			position = nil,
-			isActive = false,
-			isRejected = false,
-		})
 		self:_notifyQueue(treadmillName)
 		self:_positionQueuedPlayers(treadmillName)
 	end
@@ -188,24 +184,20 @@ function TreadmillService:OnPlayerRemoving(player: Player)
 	self:OnQueueLeave(player)
 end
 
-function TreadmillService:_advanceQueue(treadmillName: string)
+function TreadmillService:_settlePromotion(treadmillName: string, promoted: Player)
 	local tm = treadmills[treadmillName]
-	if not tm or tm.activeUser then
+	if not tm then
 		return
 	end
 
-	if #tm.queue == 0 then
-		return
-	end
+	PlayerService:UnlockMovement(promoted)
 
-	local nextPlayer = table.remove(tm.queue, 1)
-	PlayerService:UnlockMovement(nextPlayer)
-
-	local character = nextPlayer.Character
+	local character = promoted.Character
 	local hrp = character and character:FindFirstChild("HumanoidRootPart")
 	if not hrp then
-		playerTreadmill[nextPlayer] = nil
-		RemoteService:FireClient(nextPlayer, RemoteEventNames.QueueStateChanged, {
+		local _, nextPromoted = QueueLogic.remove(tm, promoted)
+		playerTreadmill[promoted] = nil
+		RemoteService:FireClient(promoted, RemoteEventNames.QueueStateChanged, {
 			treadmillName = treadmillName,
 			position = nil,
 			isActive = false,
@@ -213,15 +205,15 @@ function TreadmillService:_advanceQueue(treadmillName: string)
 		})
 		self:_notifyQueue(treadmillName)
 		self:_positionQueuedPlayers(treadmillName)
-		self:_advanceQueue(treadmillName)
+		if nextPromoted then
+			self:_settlePromotion(treadmillName, nextPromoted)
+		end
 		return
 	end
 
 	hrp.CFrame = tm.part.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
-
-	tm.activeUser = nextPlayer
 	tm.lastInputTime = os.clock()
-	RemoteService:FireClient(nextPlayer, RemoteEventNames.QueueStateChanged, {
+	RemoteService:FireClient(promoted, RemoteEventNames.QueueStateChanged, {
 		treadmillName = treadmillName,
 		position = 1,
 		isActive = true,
@@ -229,15 +221,6 @@ function TreadmillService:_advanceQueue(treadmillName: string)
 	})
 	self:_notifyQueue(treadmillName)
 	self:_positionQueuedPlayers(treadmillName)
-end
-
-function TreadmillService:_removeFromQueue(tm: TreadmillState, player: Player)
-	for i, p in tm.queue do
-		if p == player then
-			table.remove(tm.queue, i)
-			return
-		end
-	end
 end
 
 function TreadmillService:_notifyQueue(treadmillName: string)
@@ -318,23 +301,24 @@ function TreadmillService:_tick()
 	end
 
 	for treadmillName, tm in treadmills do
-		local queueChanged = false
-		for i = #tm.queue, 1, -1 do
-			local queuedPlayer = tm.queue[i]
+		local toRemove = {}
+		for _, queuedPlayer in tm.queue do
 			if not queuedPlayer.Character or not queuedPlayer.Character:FindFirstChild("HumanoidRootPart") then
-				table.remove(tm.queue, i)
-				PlayerService:UnlockMovement(queuedPlayer)
-				playerTreadmill[queuedPlayer] = nil
-				RemoteService:FireClient(queuedPlayer, RemoteEventNames.QueueStateChanged, {
-					treadmillName = treadmillName,
-					position = nil,
-					isActive = false,
-					isRejected = false,
-				})
-				queueChanged = true
+				table.insert(toRemove, queuedPlayer)
 			end
 		end
-		if queueChanged then
+		for _, queuedPlayer in toRemove do
+			QueueLogic.remove(tm, queuedPlayer)
+			PlayerService:UnlockMovement(queuedPlayer)
+			playerTreadmill[queuedPlayer] = nil
+			RemoteService:FireClient(queuedPlayer, RemoteEventNames.QueueStateChanged, {
+				treadmillName = treadmillName,
+				position = nil,
+				isActive = false,
+				isRejected = false,
+			})
+		end
+		if #toRemove > 0 then
 			self:_notifyQueue(treadmillName)
 			self:_positionQueuedPlayers(treadmillName)
 		end
@@ -344,9 +328,21 @@ function TreadmillService:_tick()
 			local hrp = character and character:FindFirstChild("HumanoidRootPart")
 			local humanoid = character and character:FindFirstChild("Humanoid")
 
-			if not hrp then
+			local shouldKick = false
+			if not hrp or (hrp.Position - tm.part.Position).Magnitude > GameConfig.QUEUE_JOIN_RADIUS then
+				shouldKick = true
+			else
+				if humanoid and humanoid.MoveDirection.Magnitude > 0 then
+					tm.lastInputTime = os.clock()
+				end
+				if tm.lastInputTime and os.clock() - tm.lastInputTime > GameConfig.AFK_KICK_TIMEOUT then
+					shouldKick = true
+				end
+			end
+
+			if shouldKick then
 				local player = tm.activeUser
-				tm.activeUser = nil
+				local _, promoted = QueueLogic.remove(tm, player)
 				tm.lastInputTime = nil
 				playerTreadmill[player] = nil
 				RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
@@ -355,41 +351,9 @@ function TreadmillService:_tick()
 					isActive = false,
 					isRejected = false,
 				})
-				self:_advanceQueue(treadmillName)
-				continue
-			end
-
-			if (hrp.Position - tm.part.Position).Magnitude > GameConfig.QUEUE_JOIN_RADIUS then
-				local player = tm.activeUser
-				tm.activeUser = nil
-				tm.lastInputTime = nil
-				playerTreadmill[player] = nil
-				RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
-					treadmillName = treadmillName,
-					position = nil,
-					isActive = false,
-					isRejected = false,
-				})
-				self:_advanceQueue(treadmillName)
-				continue
-			end
-
-			if humanoid and humanoid.MoveDirection.Magnitude > 0 then
-				tm.lastInputTime = os.clock()
-			end
-
-			if tm.lastInputTime and os.clock() - tm.lastInputTime > GameConfig.AFK_KICK_TIMEOUT then
-				local player = tm.activeUser
-				tm.activeUser = nil
-				tm.lastInputTime = nil
-				playerTreadmill[player] = nil
-				RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
-					treadmillName = treadmillName,
-					position = nil,
-					isActive = false,
-					isRejected = false,
-				})
-				self:_advanceQueue(treadmillName)
+				if promoted then
+					self:_settlePromotion(treadmillName, promoted)
+				end
 			else
 				local data = PlayerService:GetData(tm.activeUser)
 				if data and data.speed < GameConfig.MAX_PLAYER_SPEED then

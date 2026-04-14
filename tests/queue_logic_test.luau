@@ -1,0 +1,130 @@
+local runner = require("./lib/runner")
+local QueueLogic = require("../src/shared/Logic/QueueLogic")
+
+local function makeState()
+	return { activeUser = nil, queue = {} }
+end
+
+local function fakePlayer(id: string)
+	return { name = id }
+end
+
+runner.describe("QueueLogic", function()
+	runner.it("empty state + assign -> active, position 1", function()
+		local state = makeState()
+		local result, pos = QueueLogic.tryAssign(state, fakePlayer("A"), 3)
+		runner.assertEqual(result, "active")
+		runner.assertEqual(pos, 1)
+		runner.assertTrue(state.activeUser ~= nil, "activeUser should be set")
+	end)
+
+	runner.it("assign when active exists -> queued, position 2", function()
+		local state = makeState()
+		local a = fakePlayer("A")
+		local b = fakePlayer("B")
+		QueueLogic.tryAssign(state, a, 3)
+
+		local result, pos = QueueLogic.tryAssign(state, b, 3)
+		runner.assertEqual(result, "queued")
+		runner.assertEqual(pos, 2)
+		runner.assertEqual(#state.queue, 1)
+	end)
+
+	runner.it("assign when queue is full -> rejected", function()
+		local state = makeState()
+		QueueLogic.tryAssign(state, fakePlayer("A"), 2)
+		QueueLogic.tryAssign(state, fakePlayer("B"), 2)
+		QueueLogic.tryAssign(state, fakePlayer("C"), 2)
+
+		local result, pos = QueueLogic.tryAssign(state, fakePlayer("D"), 2)
+		runner.assertEqual(result, "rejected")
+		runner.assertNil(pos)
+	end)
+
+	runner.it("remove active with non-empty queue -> wasActive, promotes queue[1]", function()
+		local state = makeState()
+		local a = fakePlayer("A")
+		local b = fakePlayer("B")
+		local c = fakePlayer("C")
+		QueueLogic.tryAssign(state, a, 3)
+		QueueLogic.tryAssign(state, b, 3)
+		QueueLogic.tryAssign(state, c, 3)
+
+		local result, promoted = QueueLogic.remove(state, a)
+		runner.assertEqual(result, "wasActive")
+		runner.assertEqual(promoted, b)
+		runner.assertEqual(state.activeUser, b)
+		runner.assertEqual(#state.queue, 1)
+		runner.assertEqual(state.queue[1], c)
+	end)
+
+	runner.it("remove active with empty queue -> wasActive, no promotion", function()
+		local state = makeState()
+		local a = fakePlayer("A")
+		QueueLogic.tryAssign(state, a, 3)
+
+		local result, promoted = QueueLogic.remove(state, a)
+		runner.assertEqual(result, "wasActive")
+		runner.assertNil(promoted)
+		runner.assertNil(state.activeUser)
+	end)
+
+	runner.it("remove queued middle element -> wasQueued, shifts trailing", function()
+		local state = makeState()
+		local a = fakePlayer("A")
+		local b = fakePlayer("B")
+		local c = fakePlayer("C")
+		local d = fakePlayer("D")
+		QueueLogic.tryAssign(state, a, 5)
+		QueueLogic.tryAssign(state, b, 5)
+		QueueLogic.tryAssign(state, c, 5)
+		QueueLogic.tryAssign(state, d, 5)
+
+		local result, promoted = QueueLogic.remove(state, c)
+		runner.assertEqual(result, "wasQueued")
+		runner.assertNil(promoted)
+		runner.assertEqual(#state.queue, 2)
+		runner.assertEqual(state.queue[1], b)
+		runner.assertEqual(state.queue[2], d)
+	end)
+
+	runner.it("remove player not present -> notPresent", function()
+		local state = makeState()
+		QueueLogic.tryAssign(state, fakePlayer("A"), 3)
+
+		local result, promoted = QueueLogic.remove(state, fakePlayer("Z"))
+		runner.assertEqual(result, "notPresent")
+		runner.assertNil(promoted)
+	end)
+
+	runner.it("FIFO ordering preserved across join/leave/promote cycle", function()
+		local state = makeState()
+		local a = fakePlayer("A")
+		local b = fakePlayer("B")
+		local c = fakePlayer("C")
+		local d = fakePlayer("D")
+
+		QueueLogic.tryAssign(state, a, 5)
+		QueueLogic.tryAssign(state, b, 5)
+		QueueLogic.tryAssign(state, c, 5)
+		QueueLogic.tryAssign(state, d, 5)
+
+		runner.assertEqual(QueueLogic.positionOf(state, a), 1)
+		runner.assertEqual(QueueLogic.positionOf(state, b), 2)
+		runner.assertEqual(QueueLogic.positionOf(state, c), 3)
+		runner.assertEqual(QueueLogic.positionOf(state, d), 4)
+
+		QueueLogic.remove(state, a)
+		runner.assertEqual(QueueLogic.positionOf(state, b), 1)
+		runner.assertEqual(QueueLogic.positionOf(state, c), 2)
+		runner.assertEqual(QueueLogic.positionOf(state, d), 3)
+
+		QueueLogic.remove(state, c)
+		runner.assertEqual(QueueLogic.positionOf(state, b), 1)
+		runner.assertEqual(QueueLogic.positionOf(state, d), 2)
+
+		QueueLogic.remove(state, b)
+		runner.assertEqual(QueueLogic.positionOf(state, d), 1)
+		runner.assertNil(QueueLogic.positionOf(state, fakePlayer("gone")))
+	end)
+end)
