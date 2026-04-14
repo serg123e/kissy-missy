@@ -163,8 +163,8 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 
 ### Task 12: Verification and documentation update
 
-- [ ] Run `stylua src/` -- fix any formatting issues
-- [ ] Run `selene src/` -- fix all warnings
-- [ ] Run `rojo build -o /tmp/test.rbxl` -- verify clean build
-- [ ] Update CLAUDE.md: add TreadmillService dependency on RoundService to init order, add CloudSpawn/CloudPlatform to required workspace parts, note KissyService late-inject pattern
-- [ ] Move implementation plan to `docs/plans/completed/`
+- [x] Run `stylua src/` -- fix any formatting issues
+- [x] Run `selene src/` -- fix all warnings
+- [x] Run `rojo build -o /tmp/test.rbxl` -- verify clean build
+- [x] Update CLAUDE.md: add TreadmillService dependency on RoundService to init order, add CloudSpawn/CloudPlatform to required workspace parts, note KissyService late-inject pattern
+- [x] Move implementation plan to `docs/plans/completed/`

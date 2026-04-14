@@ -32,6 +32,10 @@ Services use manual dependency injection. Initialization order in `init.server.l
 5. `PrisonService:Init(remoteService, playerService, roundService)` — prison + door
 6. `TreadmillService:Init(remoteService, playerService, roundService)` — queue-based speed training
 
+Late-inject (avoids circular init dependencies):
+- `RoundService:SetTreadmillService(TreadmillService)` — round end releases all queues
+- `KissyService:SetRoundService(RoundService)` — phase-aware AI (only chases during Hunt)
+
 Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and call `RoundService:Start()` + `TreadmillService:Start()`.
 
 ## Required Workspace Parts (must exist in Studio place file)
@@ -42,6 +46,7 @@ Then wire `PlayerService:SetOnCapture` → `PrisonService:TeleportToPrison` and 
 - `Treadmills` — Folder with Part children; players stand on them to train speed
 - `SpawnLocations` — Folder with SpawnLocation children; players teleport here at Hunt start
 - `CloudSpawn` — Part on the cloud platform; all players teleport here at Safe Zone start
+- `CloudPlatform` — Large Part at cloud elevation; the platform players stand on during Safe Zone
 
 ## Required ServerStorage Assets
 - `KissyMissy` — Model with Humanoid + HumanoidRootPart; the NPC template cloned each round
@@ -62,7 +67,7 @@ All timing, speed, radius, and coin values live in `src/shared/Config/GameConfig
 
 ## Specs
 - [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) — gameplay design document
-- [docs/CLOUD_QUEUE_SPEC.md](docs/CLOUD_QUEUE_SPEC.md) — task spec for the cloud/queue training system (next implementation work)
+- [docs/CLOUD_QUEUE_SPEC.md](docs/CLOUD_QUEUE_SPEC.md) — cloud/queue training system spec (implemented)
 
 ## Code Style
 - Tabs for indentation
