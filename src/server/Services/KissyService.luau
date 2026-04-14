@@ -20,6 +20,7 @@ local lastPathTime = 0
 local currentWaypoints: { PathWaypoint } = {}
 local currentWaypointIndex = 0
 local sharedPath: Path? = nil
+local blockedConnection: RBXScriptConnection? = nil
 
 local function _getOrCreatePath(): Path
 	if not sharedPath then
@@ -29,11 +30,20 @@ local function _getOrCreatePath(): Path
 			AgentCanJump = true,
 			Costs = { PrisonInterior = math.huge },
 		})
+		blockedConnection = sharedPath.Blocked:Connect(function(blockedWaypointIndex)
+			if blockedWaypointIndex >= currentWaypointIndex then
+				lastPathTime = 0
+			end
+		end)
 	end
 	return sharedPath
 end
 
 local function _destroyPath()
+	if blockedConnection then
+		blockedConnection:Disconnect()
+		blockedConnection = nil
+	end
 	sharedPath = nil
 end
 

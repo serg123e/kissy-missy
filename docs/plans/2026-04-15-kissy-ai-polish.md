@@ -58,11 +58,11 @@ Addresses GOTCHA #46 (don't `CreatePath` every tick) and consumes the Task 1 mod
 
 Addresses GOTCHA #49. Relies on Task 2's shared path object.
 
-- [ ] In the lazy-initializer from Task 2, connect `path.Blocked:Connect(function(blockedWaypointIndex) ... end)`.
-- [ ] Handler: if `blockedWaypointIndex >= currentWaypointIndex`, force recompute on next tick (set `lastPathTime = 0`). Otherwise ignore (block is behind the agent).
-- [ ] Disconnect the signal in `_destroyPath` to avoid double-connects on re-`Activate`.
-- [ ] Gate.
-- [ ] Commit: `feat: recompute Kissy path on Blocked-ahead signal (GOTCHA #49)`.
+- [x] In the lazy-initializer from Task 2, connect `path.Blocked:Connect(function(blockedWaypointIndex) ... end)`.
+- [x] Handler: if `blockedWaypointIndex >= currentWaypointIndex`, force recompute on next tick (set `lastPathTime = 0`). Otherwise ignore (block is behind the agent).
+- [x] Disconnect the signal in `_destroyPath` to avoid double-connects on re-`Activate`.
+- [x] Gate.
+- [x] Commit: `feat: recompute Kissy path on Blocked-ahead signal (GOTCHA #49)`.
 
 ### Task 4: Handle `MoveToFinished` timeouts
 
