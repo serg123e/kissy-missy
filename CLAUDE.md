@@ -21,6 +21,7 @@ src/
     UI/            → GUI controllers (HUD)
   shared/          → ReplicatedStorage (shared between server & client)
     Config/        → Game constants and configuration
+    Logic/         → Pure logic modules (testable without Roblox engine)
 ```
 
 ## Service Architecture

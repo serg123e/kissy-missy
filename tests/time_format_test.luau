@@ -25,4 +25,12 @@ describe("TimeFormat", function()
 	it("clamps negative to 0:00", function()
 		assertEqual(TimeFormat.format(-1), "0:00")
 	end)
+
+	it("truncates fractional seconds", function()
+		assertEqual(TimeFormat.format(65.7), "1:05")
+	end)
+
+	it("formats round duration (300) as 5:00", function()
+		assertEqual(TimeFormat.format(300), "5:00")
+	end)
 end)

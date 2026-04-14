@@ -25,7 +25,7 @@ describe("EligibilityLogic.isEligibleForSurvivalReward", function()
 end)
 
 describe("EligibilityLogic.snapshotEligible", function()
-	it("updates all entries to given round", function()
+	it("updates all entries to given round without changing state", function()
 		local map = {
 			a = { state = "Alive", joinedRound = 0 },
 			b = { state = "Captured", joinedRound = 1 },
@@ -35,6 +35,9 @@ describe("EligibilityLogic.snapshotEligible", function()
 		assertEqual(map.a.joinedRound, 5)
 		assertEqual(map.b.joinedRound, 5)
 		assertEqual(map.c.joinedRound, 5)
+		assertEqual(map.a.state, "Alive")
+		assertEqual(map.b.state, "Captured")
+		assertEqual(map.c.state, "Alive")
 	end)
 
 	it("empty map → no-op, no crash", function()

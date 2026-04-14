@@ -22,7 +22,8 @@ Exits non-zero on any failure.
 tests/
   run.luau              entrypoint — requires each test file
   lib/runner.luau       describe / it / assertEqual / assertTrue / assertFalse / assertNil
-  runner_self_test.luau sanity check that the runner itself works
+  lib/roblox_stub.luau  minimal Enum stub for loading GameConfig under Lune
+  runner_self_test.luau  sanity check that the runner itself works
   <topic>_test.luau     one file per logic module under test
 ```
 
@@ -41,9 +42,16 @@ end)
 
 Then add `require("./<name>_test")` to `run.luau`.
 
+If the module under test uses Roblox globals (e.g. `Enum`), require the stub first:
+
+```lua
+require("./lib/roblox_stub")
+local GameConfig = require("../src/shared/Config/GameConfig")
+```
+
 ## Why no framework
 
-At this scale, a 70-line runner is clearer than pulling in a dependency. If the suite grows past ~20 files or we need fixtures / parallelism, consider [TestEZ](https://github.com/Roblox/testez) (Roblox-side) or [Jestronaut](https://github.com/Jestronaut/jestronaut) (Lune-side).
+At this scale, an 80-line runner is clearer than pulling in a dependency. If the suite grows past ~20 files or we need fixtures / parallelism, consider [TestEZ](https://github.com/Roblox/testez) (Roblox-side) or [Jestronaut](https://github.com/Jestronaut/jestronaut) (Lune-side).
 
 ## Selene
 

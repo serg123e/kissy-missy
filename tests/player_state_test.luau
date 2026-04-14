@@ -30,9 +30,17 @@ describe("PlayerStateLogic", function()
 		it("returns false for Alive", function()
 			assertFalse(PlayerStateLogic.canFree({ state = "Alive" }))
 		end)
+
+		it("returns false for nil data", function()
+			assertFalse(PlayerStateLogic.canFree(nil))
+		end)
 	end)
 
 	describe("countAlive", function()
+		it("returns 0 for empty map", function()
+			assertEqual(PlayerStateLogic.countAlive({}), 0)
+		end)
+
 		it("counts only Alive in mixed states", function()
 			local map = {
 				a = { state = "Alive" },

@@ -7,13 +7,13 @@ Tag/chase multiplayer Roblox game. Up to 32 players try to survive while Kissy M
 ### Round flow
 
 1. **Intermission** (15s) — scores shown, waiting for at least 2 players
-2. **Safe Zone** (15s) — players spawn around the castle, can train on treadmills. Kissy Missy exits the castle after 10s
+2. **Safe Zone** (15s) — all players teleport to the cloud platform, can train on treadmills (1 per treadmill, FIFO queue). Kissy Missy exits the castle after 10s
 3. **Hunt** (5 min) — Kissy chases and catches players
 4. **Round End** (5s) — survivors earn 100 coins, results displayed
 
 ### Mechanics
 
-- **Treadmills** — stand on a treadmill to train speed (+0.5 every 3s, max 24). Kissy is always faster (28). Speed resets each round
+- **Treadmills** — press **E** near a treadmill on the cloud to join its queue (1 active user, FIFO queue up to 10). Training grants +0.5 speed every 3s (max 24). Kissy is always faster (28). Speed resets each round
 - **Prison** — caught players are teleported to prison inside the castle. Any free player can press **Y** near the prison door to open it for 5 seconds, freeing everyone inside (25 coins reward)
 - **Kissy Missy AI** — chases the nearest player, guards the prison door when players approach, occasionally switches targets unpredictably
 - **Win** — players win if at least one survives when the timer runs out. Kissy wins if everyone is captured
@@ -97,8 +97,11 @@ Placeholder objects are already created by Rojo — reposition them in your cast
 | `PrisonExit` | Outside the prison door | Freed players teleport here |
 | `PrisonDoor` | Prison entrance | Opens/closes when players press Y |
 | `KissySpawn` | Inside the castle | Kissy Missy spawns here each round |
-| `Treadmills/` (Folder) | Training zone near spawn | Reposition each Part child individually |
+| `Treadmills/` (Folder) | On the cloud platform | Reposition each Part child individually |
 | `SpawnLocations/` (Folder) | Around the castle | Reposition each SpawnLocation child individually |
+| `CloudSpawn` | On the cloud platform | All players teleport here at Safe Zone start |
+| `CloudPlatform` | Sky elevation | Platform players stand on during Safe Zone |
+| `CloudWalls/` (Folder) | Around cloud edge | 4 invisible walls preventing players from falling off |
 
 ### ServerStorage (create manually)
 
@@ -117,8 +120,11 @@ Create a **Model** named `KissyMissy`:
 - [ ] Place the prison door at the entrance
 - [ ] Position PrisonSpawn inside and PrisonExit outside the prison
 - [ ] Position KissySpawn inside the castle
-- [ ] Place 4 treadmills in a training zone near spawn
+- [ ] Position 5 treadmills on the cloud platform
 - [ ] Place 4 spawn locations around the castle
+- [ ] Position CloudSpawn on the cloud platform
+- [ ] Position CloudPlatform at sky elevation
+- [ ] Position 4 CloudWalls around the cloud platform edge
 - [ ] Create the KissyMissy model in ServerStorage
 - [ ] Optional: add 3-4 treehouses as hiding spots
 
@@ -143,6 +149,11 @@ src/
     Config/
       GameConfig       — all game constants (speeds, timers, radii, coins)
       RemoteEvents     — remote event name constants
+    Logic/
+      QueueLogic       — pure queue state machine (FIFO assign/remove/position)
+      EligibilityLogic — survival reward eligibility checks
+      PlayerStateLogic — player state guard predicates
+      TimeFormat       — time formatting for HUD display
 ```
 
 ## Testing

@@ -272,7 +272,7 @@ function HudController:_startHudLoop()
 		-- Client-side countdown between server syncs
 		local elapsed = os.clock() - lastServerSync
 		local display = math.max(0, math.floor(timeRemaining - elapsed))
-		timerLabel.Text = self:_formatTime(display)
+		timerLabel.Text = TimeFormat.format(display)
 
 		promptLabel.Visible = self:_shouldShowPrompt()
 	end)
@@ -314,10 +314,6 @@ function HudController:_stateDisplay(state: string): string
 		return "ROUND OVER"
 	end
 	return state:upper()
-end
-
-function HudController:_formatTime(seconds: number): string
-	return TimeFormat.format(seconds)
 end
 
 function HudController:_notify(text: string)
