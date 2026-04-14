@@ -90,11 +90,15 @@ function KissyService:_spawnKissy()
 	local humanoidRootPart = kissyModel:FindFirstChild("HumanoidRootPart")
 	if humanoidRootPart then
 		humanoidRootPart.CFrame = kissySpawn.CFrame + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
+		-- Pin NPC physics to the server so no client can diverge Kissy's position
+		-- (default ownership would drift to the nearest player).
+		humanoidRootPart:SetNetworkOwner(nil)
 	end
 
 	local humanoid = kissyModel:FindFirstChildOfClass("Humanoid")
 	if humanoid then
 		humanoid.WalkSpeed = GameConfig.KISSY_SPEED
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	end
 
 	print("[KissyService] Kissy Missy spawned")
