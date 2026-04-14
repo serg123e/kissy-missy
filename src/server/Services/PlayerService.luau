@@ -24,6 +24,7 @@ local currentRound: number = 0
 
 local RemoteService -- injected via Init
 local onCaptureCallback: ((Player) -> ())? = nil
+local onAllCapturedCallback: (() -> ())? = nil
 
 function PlayerService:Init(remoteService)
 	RemoteService = remoteService
@@ -127,10 +128,18 @@ function PlayerService:CapturePlayer(player: Player)
 	if onCaptureCallback then
 		onCaptureCallback(player)
 	end
+
+	if onAllCapturedCallback and #self:GetAlivePlayers() == 0 then
+		onAllCapturedCallback()
+	end
 end
 
 function PlayerService:SetOnCapture(callback: (Player) -> ())
 	onCaptureCallback = callback
+end
+
+function PlayerService:SetOnAllCaptured(callback: () -> ())
+	onAllCapturedCallback = callback
 end
 
 function PlayerService:FreePlayer(player: Player)
@@ -233,8 +242,13 @@ function PlayerService:ResetForRound()
 		data.state = "Alive"
 		data.speed = GameConfig.BASE_PLAYER_SPEED
 		data.captureTime = nil
-		data.joinedRound = currentRound
 		self:SetSpeed(player, GameConfig.BASE_PLAYER_SPEED)
+	end
+end
+
+function PlayerService:SnapshotEligible(roundNumber: number)
+	for _, data in playerData do
+		data.joinedRound = roundNumber
 	end
 end
 

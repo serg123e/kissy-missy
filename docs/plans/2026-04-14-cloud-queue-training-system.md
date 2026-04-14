@@ -152,14 +152,14 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 - Modify: `src/server/Services/PlayerService.luau`
 - Modify: `src/server/Services/RoundService.luau`
 
-- [ ] PlayerService: in `CapturePlayer`, after capture callback, check if no alive players remain; if so, invoke onAllCapturedCallback
-- [ ] PlayerService: add `SetOnAllCaptured(callback)` method
-- [ ] RoundService: set PlayerService:SetOnAllCaptured to signal Hunt-phase early termination flag
-- [ ] RoundService: in `_runHunt`, check early-termination flag in countdown's shouldStop condition
-- [ ] PlayerService: add `SnapshotEligible(roundNumber)` -- sets joinedRound for all connected players
-- [ ] PlayerService: remove joinedRound assignment from `ResetForRound` (was making late-joiners look eligible)
-- [ ] RoundService: call `SnapshotEligible(roundNumber)` at start of `_runSafeZone`, after `SetRound()`, before `ResetForRound()`
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] PlayerService: in `CapturePlayer`, after capture callback, check if no alive players remain; if so, invoke onAllCapturedCallback
+- [x] PlayerService: add `SetOnAllCaptured(callback)` method
+- [x] RoundService: set PlayerService:SetOnAllCaptured to signal Hunt-phase early termination flag
+- [x] RoundService: in `_runHunt`, check early-termination flag in countdown's shouldStop condition
+- [x] PlayerService: add `SnapshotEligible(roundNumber)` -- sets joinedRound for all connected players
+- [x] PlayerService: remove joinedRound assignment from `ResetForRound` (was making late-joiners look eligible)
+- [x] RoundService: call `SnapshotEligible(roundNumber)` at start of `_runSafeZone`, after `SetRound()`, before `ResetForRound()`
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 12: Verification and documentation update
 

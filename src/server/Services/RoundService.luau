@@ -10,6 +10,7 @@ local RoundService = {}
 local state: string = "Intermission"
 local timeRemaining: number = 0
 local roundNumber: number = 0
+local huntEarlyTermination: boolean = false
 
 local RemoteService
 local PlayerService
@@ -97,8 +98,13 @@ function RoundService:_runSafeZone()
 
 	PrisonService:Reset() -- teleport captured players out first
 	PlayerService:SetRound(roundNumber)
+	PlayerService:SnapshotEligible(roundNumber)
 	PlayerService:ResetForRound()
 	PlayerService:TeleportAllToCloud()
+	huntEarlyTermination = false
+	PlayerService:SetOnAllCaptured(function()
+		huntEarlyTermination = true
+	end)
 	KissyService:Activate() -- spawn Kissy in castle, starts hunting after KISSY_SPAWN_DELAY
 	self:_setState("SafeZone", GameConfig.SAFE_ZONE_DURATION)
 	self:_countdown(GameConfig.SAFE_ZONE_DURATION)
@@ -112,9 +118,7 @@ function RoundService:_runHunt()
 	self:_setState("Hunt", GameConfig.ROUND_DURATION)
 
 	local kissyWon = self:_countdown(GameConfig.ROUND_DURATION, function()
-		local alive = PlayerService:GetAlivePlayers()
-		-- Distinguish "all captured" from "server empty"
-		return #alive == 0 and #Players:GetPlayers() > 0
+		return huntEarlyTermination
 	end)
 
 	if kissyWon then
