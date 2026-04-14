@@ -6,9 +6,10 @@ Tag/chase multiplayer game. Kissy Missy (NPC) lives in a castle and hunts player
 
 ## Setting
 
-- A **castle** in the center of the map with a **prison** inside
-- Open area around the castle where players spawn and run
-- **Training zone** ("Saigur zone") with treadmills near the spawn area
+Two distinct areas:
+
+- **Castle map** — a castle in the center with a **prison** inside. Open terrain around it where players run during the Hunt phase.
+- **Cloud (training zone)** — a separate area in the sky where players are teleported during the Safe Zone phase to train on treadmills. Kissy Missy cannot reach the cloud.
 
 ## Characters
 
@@ -20,21 +21,37 @@ Tag/chase multiplayer game. Kissy Missy (NPC) lives in a castle and hunts player
 - On contact with a player → that player is teleported to prison
 
 ### Players
-- Spawn around the castle
+- Teleported to the **cloud** during Safe Zone to train
+- Teleported to spawn points **around the castle** when Hunt begins
 - Start with base walk speed
-- Can train on treadmills to increase speed
+- Can train on treadmills (limited slots → queue system)
 - Can free prisoners by pressing Y near the prison door
 - Goal: survive until the round ends
 
 ## Core Mechanics
 
 ### Speed & Treadmills
+
 - Players start with base speed (16 studs/s)
-- Treadmills are located in the training zone
-- Standing on a treadmill and running increases player speed over time
-- Speed caps at a maximum (24 studs/s)
+- Speed caps at maximum (24 studs/s)
 - Kissy Missy is always faster (28 studs/s) — players can never outrun her forever, only buy time
 - Speed resets each round
+
+#### Cloud (training zone)
+- **5 treadmills** total on the cloud
+- **4 regular treadmills** (free for all players)
+- **1 VIP treadmill** (requires Robux purchase to use)
+- **Only one player per treadmill** at a time
+- Standing on a treadmill increases speed over time (+0.5 every 3s)
+
+#### Queue system
+- If a treadmill is occupied, approaching players enter a **queue** for that treadmill
+- Queue is FIFO (first-in-first-out)
+- **Maximum queue length: 10 players** per treadmill
+- When the current player leaves (Safe Zone ends, moves off, disconnects, or is AFK-kicked), the next player in queue takes the slot
+- **AFK kick:** if a player on a treadmill is idle (not moving / no input) for a threshold duration, they are removed from the treadmill to let the queue progress
+- Visual indicators show queue position for each treadmill
+- Queue resets at the end of each Safe Zone
 
 ### Prison
 - Located inside the castle
@@ -46,7 +63,8 @@ Tag/chase multiplayer game. Kissy Missy (NPC) lives in a castle and hunts player
 - Freeing prisoners is risky — Kissy Missy may be nearby
 
 ### Kissy Missy AI
-- Exits the castle after an initial delay (safe zone period)
+- Stays in the castle during Safe Zone (cannot reach the cloud)
+- Exits the castle 10s into Safe Zone — the last 5s of Safe Zone overlap with her active hunting (but players are safe on the cloud until Hunt begins)
 - Primary behavior: chase nearest player
 - Should be smart enough to not be easily baited by a lone decoy every time
 - Potential behaviors:
@@ -64,9 +82,9 @@ Tag/chase multiplayer game. Kissy Missy (NPC) lives in a castle and hunts player
 
 ### Round Structure
 1. **Intermission** (15s) — players gather, scores shown. Waits for minimum 2 players before countdown.
-2. **Safe zone** (15s) — players spawn around the castle, can train on treadmills. Kissy Missy exits the castle after 10s (`KISSY_SPAWN_DELAY`), so the final 5s overlap with active hunting.
-3. **Hunt** (5 min) — Kissy Missy chases players.
-4. **Round end** (5s) — results displayed, survivors awarded coins.
+2. **Safe Zone** (15s) — players teleported to the **cloud**, can queue and train on treadmills. Kissy Missy remains in the castle.
+3. **Hunt** (5 min) — all players teleported from the cloud to spawn points around the castle. Kissy Missy starts chasing.
+4. **Round End** (5s) — results displayed, survivors awarded coins.
 5. Back to intermission.
 
 ### Win Conditions
@@ -80,25 +98,45 @@ Tag/chase multiplayer game. Kissy Missy (NPC) lives in a castle and hunts player
 - Bonus coins for freeing prisoners (risk/reward)
 - Coins persist for the server session
 
+### VIP Treadmill (Monetization)
+- One of the 5 treadmills is locked behind a Robux purchase (developer product or gamepass — TBD)
+- **Mechanical benefit deferred** — for now, VIP treadmill is visually distinct but uses the same mechanics as regular treadmills. Specific advantage to be decided later.
+- Non-VIP players cannot use this treadmill or queue for it
+
 ## Map Layout
 
+### Castle map (Hunt phase)
 ```
-         [Training Zone / Treadmills]
-
-    [Spawn Area]          [Spawn Area]
-
               [   Castle   ]
               [             ]
               [  [Prison]   ]
               [             ]
 
-    [Spawn Area]          [Spawn Area]
+    [Spawn]                [Spawn]
+
+         (open terrain, treehouses)
+
+    [Spawn]                [Spawn]
 ```
 
 - Castle is the central landmark, visible from everywhere
-- Training zone is near spawn but away from the castle entrance
-- Open terrain around the castle with a few **treehouses** as hiding spots (scarce — 3-4 max)
+- Spawn locations positioned around the castle (players teleport here when Hunt begins)
+- Open terrain with a few **treehouses** as hiding spots (scarce — 3-4 max)
 - Treehouses provide temporary cover but Kissy Missy can still reach them
+
+### Cloud (Safe Zone phase)
+```
+    +---------------------------------+
+    |  [T1]  [T2]  [T3]  [T4]  [VIP] |
+    |   |     |     |     |     |    |
+    |  queue queue queue queue queue |
+    +---------------------------------+
+```
+
+- Floating platform in the sky, inaccessible from the castle map
+- 5 treadmills in a row: T1-T4 (free) and VIP
+- Each treadmill has a visible queue spot behind it
+- Kissy Missy cannot teleport to or reach the cloud
 
 ## Decided Parameters
 - **Max players:** 32
@@ -106,14 +144,42 @@ Tag/chase multiplayer game. Kissy Missy (NPC) lives in a castle and hunts player
 - **Round duration:** 5 minutes
 - **Round end display:** 5 seconds
 - **Intermission:** 15 seconds
-- **Safe zone:** 15 seconds (Kissy exits at 10s)
-- **Kissy Missy speed:** constant, does not increase during the round
+- **Safe Zone:** 15 seconds (Kissy exits castle at 10s, but players are safe on cloud)
+- **Kissy Missy speed:** constant (28 studs/s), does not increase during the round
+- **Base player speed:** 16 studs/s
+- **Max player speed:** 24 studs/s
+- **Treadmill speed gain:** +0.5 per 3 seconds
 - **Treadmill training:** resets each round
-- **Hiding spots:** treehouses on trees, very few (scarcity forces players to move and cooperate)
+- **Treadmill count:** 5 total (4 free + 1 VIP)
+- **Treadmill occupancy:** 1 player at a time, others queue FIFO
+- **Max queue length:** 10 players per treadmill
+- **AFK kick:** idle players are removed from the treadmill
+- **Cloud safety:** fence + invisible wall around the edge (players cannot fall off)
+- **Teleport mode:** automatic — players are teleported to the cloud at Safe Zone start, no manual portal
+- **Hiding spots:** treehouses on trees, very few (scarcity forces movement and cooperation)
 - **Coins per survived round:** 100 (only for players present at round start)
 - **Coins per door open:** 25 (flat, regardless of prisoner count)
 
 ## Open Questions
+
+### Cloud & Safe Zone
+- Do players appear at a neutral entry point (can walk to any treadmill) or are they distributed across queues automatically?
+- Can players voluntarily leave a treadmill/queue before Safe Zone ends? (Probably yes — free movement on the cloud)
+
+### Treadmills & Queue
+- **AFK kick threshold:** how many seconds of idle → kick? (suggest 5s)
+- How is queue position visually indicated? (Numbered spots on the ground? UI label above head?)
+- What happens if the queue is full (10 players) and another player approaches? (Blocked / shown message / auto-route to shortest queue?)
+
+### VIP Treadmill (deferred)
+- **Mechanical benefit** — to be decided when monetization is prioritized. Options to revisit:
+  - (a) Faster training (+1.0/3s vs +0.5/3s)
+  - (b) Guaranteed access / separate VIP-only queue
+  - (c) Higher speed cap (e.g. 26 studs/s)
+  - (d) Cosmetic only
+- **Purchase model:** Gamepass (permanent) vs Developer Product (per-round)?
+
+### Other
 - Should prison have a visual indicator (glow, sound) when players are inside?
 - Can Kissy Missy enter treehouses or does she wait below?
 - How many treehouses? (3-4 suggested)
