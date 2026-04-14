@@ -14,6 +14,12 @@ local RemoteEvents = {
 
 	-- Client → Server (no args, player is implicit)
 	DoorInteract = "DoorInteract",
+
+	-- Queue system
+	QueueJoin = "QueueJoin",
+	QueueLeave = "QueueLeave",
+	QueueStateChanged = "QueueStateChanged",
+	MovementLockChanged = "MovementLockChanged",
 }
 
 return RemoteEvents

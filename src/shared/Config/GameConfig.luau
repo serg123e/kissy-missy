@@ -35,6 +35,12 @@ local GameConfig = {
 
 	-- Map
 	TREEHOUSE_COUNT = 4, -- few hiding spots, forces movement
+
+	-- Queue system (cloud training zone)
+	MAX_QUEUE_LENGTH = 10,
+	QUEUE_JOIN_KEY = Enum.KeyCode.E,
+	AFK_KICK_TIMEOUT = 60,
+	QUEUE_JOIN_RADIUS = 8,
 }
 
 return GameConfig

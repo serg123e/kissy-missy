@@ -28,10 +28,10 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 - Modify: `src/shared/Config/GameConfig.luau`
 - Modify: `src/shared/Config/RemoteEvents.luau`
 
-- [ ] Add constants to GameConfig: `MAX_QUEUE_LENGTH = 10`, `QUEUE_JOIN_KEY = Enum.KeyCode.E`, `AFK_KICK_TIMEOUT = 60`, `QUEUE_JOIN_RADIUS = 8`
-- [ ] Add remote events to RemoteEvents: `QueueJoin`, `QueueLeave`, `QueueStateChanged`, `MovementLockChanged`
-- [ ] Verify RemoteService auto-creates new remotes (it iterates the table, should work)
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] Add constants to GameConfig: `MAX_QUEUE_LENGTH = 10`, `QUEUE_JOIN_KEY = Enum.KeyCode.E`, `AFK_KICK_TIMEOUT = 60`, `QUEUE_JOIN_RADIUS = 8`
+- [x] Add remote events to RemoteEvents: `QueueJoin`, `QueueLeave`, `QueueStateChanged`, `MovementLockChanged`
+- [x] Verify RemoteService auto-creates new remotes (it iterates the table, should work)
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 2: Add cloud platform geometry to project
 
