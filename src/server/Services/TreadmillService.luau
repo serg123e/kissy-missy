@@ -313,7 +313,11 @@ function TreadmillService:_tick()
 			local hrp = character and character:FindFirstChild("HumanoidRootPart")
 			local humanoid = character and character:FindFirstChild("Humanoid")
 
-			if hrp and (hrp.Position - tm.part.Position).Magnitude > GameConfig.QUEUE_JOIN_RADIUS then
+			if not hrp then
+				continue
+			end
+
+			if (hrp.Position - tm.part.Position).Magnitude > GameConfig.QUEUE_JOIN_RADIUS then
 				local player = tm.activeUser
 				tm.activeUser = nil
 				tm.lastInputTime = nil
