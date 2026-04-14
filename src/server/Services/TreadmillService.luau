@@ -139,6 +139,8 @@ function TreadmillService:OnQueueJoin(player: Player, treadmillName: string)
 
 	table.insert(tm.queue, player)
 	playerTreadmill[player] = treadmillName
+	PlayerService:LockMovement(player)
+	self:_positionQueuedPlayers(treadmillName)
 	RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
 		treadmillName = treadmillName,
 		position = #tm.queue + 1,
@@ -174,6 +176,7 @@ function TreadmillService:OnQueueLeave(player: Player)
 	else
 		self:_removeFromQueue(tm, player)
 		playerTreadmill[player] = nil
+		PlayerService:UnlockMovement(player)
 		RemoteService:FireClient(player, RemoteEventNames.QueueStateChanged, {
 			treadmillName = treadmillName,
 			position = nil,
@@ -181,6 +184,7 @@ function TreadmillService:OnQueueLeave(player: Player)
 			isRejected = false,
 		})
 		self:_notifyQueue(treadmillName)
+		self:_positionQueuedPlayers(treadmillName)
 	end
 end
 
@@ -199,6 +203,7 @@ function TreadmillService:_advanceQueue(treadmillName: string)
 	end
 
 	local nextPlayer = table.remove(tm.queue, 1)
+	PlayerService:UnlockMovement(nextPlayer)
 	tm.activeUser = nextPlayer
 	tm.activeStartTime = os.clock()
 	tm.lastInputTime = os.clock()
@@ -209,6 +214,7 @@ function TreadmillService:_advanceQueue(treadmillName: string)
 		isRejected = false,
 	})
 	self:_notifyQueue(treadmillName)
+	self:_positionQueuedPlayers(treadmillName)
 end
 
 function TreadmillService:_removeFromQueue(tm: TreadmillState, player: Player)
@@ -233,6 +239,31 @@ function TreadmillService:_notifyQueue(treadmillName: string)
 			isActive = false,
 			isRejected = false,
 		})
+	end
+end
+
+local QUEUE_SPACING = 3
+
+function TreadmillService:_positionQueuedPlayers(treadmillName: string)
+	local tm = treadmills[treadmillName]
+	if not tm then
+		return
+	end
+
+	local backDir = -tm.part.CFrame.LookVector
+	local basePos = tm.part.Position
+
+	for i, player in tm.queue do
+		local character = player.Character
+		if character then
+			local hrp = character:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				local offset = backDir * (QUEUE_SPACING * i)
+				local queuePos = basePos + offset + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
+				local lookTarget = basePos + Vector3.new(0, GameConfig.TELEPORT_Y_OFFSET, 0)
+				hrp.CFrame = CFrame.lookAt(queuePos, lookTarget)
+			end
+		end
 	end
 end
 

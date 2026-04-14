@@ -15,6 +15,7 @@ local playerData: {
 		captureTime: number?,
 		coins: number,
 		joinedRound: number, -- which round the player joined; 0 = before first round
+		movementLocked: boolean,
 	},
 } =
 	{}
@@ -53,9 +54,10 @@ function PlayerService:_onPlayerAdded(player: Player)
 		captureTime = nil,
 		coins = 0,
 		joinedRound = currentRound,
+		movementLocked = false,
 	}
 
-	-- Re-apply stored speed when character respawns
+	-- Re-apply stored speed (or lock) when character respawns
 	player.CharacterAdded:Connect(function(character)
 		local data = playerData[player]
 		if not data then
@@ -63,7 +65,11 @@ function PlayerService:_onPlayerAdded(player: Player)
 		end
 		local humanoid = character:WaitForChild("Humanoid", 5)
 		if humanoid then
-			humanoid.WalkSpeed = data.speed
+			if data.movementLocked then
+				humanoid.WalkSpeed = 0
+			else
+				humanoid.WalkSpeed = data.speed
+			end
 		end
 	end)
 
@@ -158,6 +164,44 @@ function PlayerService:AddCoins(player: Player, amount: number)
 	end
 
 	RemoteService:FireClient(player, RemoteEventNames.CoinsUpdated, data.coins)
+end
+
+function PlayerService:LockMovement(player: Player)
+	local data = playerData[player]
+	if not data then
+		return
+	end
+
+	data.movementLocked = true
+
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid.WalkSpeed = 0
+		end
+	end
+
+	RemoteService:FireClient(player, RemoteEventNames.MovementLockChanged, true)
+end
+
+function PlayerService:UnlockMovement(player: Player)
+	local data = playerData[player]
+	if not data then
+		return
+	end
+
+	data.movementLocked = false
+
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid.WalkSpeed = data.speed
+		end
+	end
+
+	RemoteService:FireClient(player, RemoteEventNames.MovementLockChanged, false)
 end
 
 function PlayerService:SetSpeed(player: Player, speed: number)

@@ -98,15 +98,15 @@ Implement the cloud safe zone with treadmill queue system, Kissy phase-aware AI,
 - Modify: `src/server/Services/PlayerService.luau`
 - Modify: `src/server/Services/TreadmillService.luau`
 
-- [ ] PlayerService: add `LockMovement(player)` -- sets WalkSpeed=0 without overwriting data.speed, fires MovementLockChanged(true)
-- [ ] PlayerService: add `UnlockMovement(player)` -- restores WalkSpeed=data.speed, fires MovementLockChanged(false)
-- [ ] PlayerService: modify CharacterAdded handler to check if player is movement-locked and apply WalkSpeed=0
-- [ ] TreadmillService: on adding player to queue (not active) -> call LockMovement
-- [ ] TreadmillService: on player transitioning queued->active -> call UnlockMovement
-- [ ] TreadmillService: on player leaving queue -> call UnlockMovement
-- [ ] TreadmillService: compute queue positions behind treadmill (3 studs apart along -LookVector), set queued players' CFrames
-- [ ] TreadmillService: shift remaining players to new positions when queue advances
-- [ ] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
+- [x] PlayerService: add `LockMovement(player)` -- sets WalkSpeed=0 without overwriting data.speed, fires MovementLockChanged(true)
+- [x] PlayerService: add `UnlockMovement(player)` -- restores WalkSpeed=data.speed, fires MovementLockChanged(false)
+- [x] PlayerService: modify CharacterAdded handler to check if player is movement-locked and apply WalkSpeed=0
+- [x] TreadmillService: on adding player to queue (not active) -> call LockMovement
+- [x] TreadmillService: on player transitioning queued->active -> call UnlockMovement
+- [x] TreadmillService: on player leaving queue -> call UnlockMovement
+- [x] TreadmillService: compute queue positions behind treadmill (3 studs apart along -LookVector), set queued players' CFrames
+- [x] TreadmillService: shift remaining players to new positions when queue advances
+- [x] Run `stylua src/ && selene src/ && rojo build -o /tmp/test.rbxl`
 
 ### Task 8: AFK kick and Leave Queue button
 
